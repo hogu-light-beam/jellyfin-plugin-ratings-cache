@@ -52,4 +52,4 @@ et propose tous ses réglages dans le tableau de bord (menu « Ratings Cache »)
 
 ## Compilation locale (facultatif)
     dotnet build Jellyfin.Plugin.RatingsCache/Jellyfin.Plugin.RatingsCache.csproj -c Release
-Cible .NET 10 et les paquets `Jellyfin.Controller` / `Jellyfin.Model` 12.0.0. Le workflow GitHub fait ce travail et publie les versions.
+Cible .NET 10 et les paquets `Jellyfin.Controller` / `Jellyfin.Model` 12.0.0.
