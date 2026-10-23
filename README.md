@@ -7,8 +7,6 @@ par le serveur (MDBList), puis servies en un seul fichier compressé que le navi
 Aucun fichier à modifier : le plugin ajoute lui-même son script à la page d'accueil du client web
 et propose tous ses réglages dans le tableau de bord (menu « Ratings Cache »).
 
-> **Installation pas à pas : voir [INSTALL.md](INSTALL.md).**
-
 ## Fonctions
 
 **Tableau de bord**
