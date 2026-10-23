@@ -1,0 +1,80 @@
+name: Build et publication du plugin
+
+on:
+  push:
+    branches: [main]
+    paths-ignore: ['manifest.json', '**.md']
+    tags: ['v*']
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Récupérer le code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Installer .NET 10
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Compiler (contrôle)
+        run: dotnet build Jellyfin.Plugin.RatingsCache/Jellyfin.Plugin.RatingsCache.csproj -c Release
+
+      # ----- Les étapes suivantes ne tournent que pour un tag vX.Y.Z -----
+      - name: Calculer la version à partir du tag
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: |
+          TAG="${GITHUB_REF_NAME}"
+          V="${TAG#v}"
+          IFS=. read -ra P <<< "$V"
+          while [ ${#P[@]} -lt 4 ]; do P+=(0); done
+          PV="${P[0]}.${P[1]}.${P[2]}.${P[3]}"
+          echo "TAG=$TAG" >> "$GITHUB_ENV"
+          echo "PV=$PV" >> "$GITHUB_ENV"
+          echo "ZIP=jellyfin-ratings-cache_${PV}.zip" >> "$GITHUB_ENV"
+          CHANGELOG="$(git for-each-ref --format='%(contents)' "refs/tags/$TAG" | head -c 2000)"
+          [ -n "$CHANGELOG" ] || CHANGELOG="Version $PV"
+          { echo "CHANGELOG<<EOF_CHANGELOG"; echo "$CHANGELOG"; echo "EOF_CHANGELOG"; } >> "$GITHUB_ENV"
+
+      - name: Publier le plugin avec la version du tag
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: |
+          dotnet publish Jellyfin.Plugin.RatingsCache/Jellyfin.Plugin.RatingsCache.csproj -c Release -o out \
+            -p:Version=$PV -p:AssemblyVersion=$PV -p:FileVersion=$PV
+          test -f out/Jellyfin.Plugin.RatingsCache.dll
+          zip -j "$ZIP" out/Jellyfin.Plugin.RatingsCache.dll
+          echo "CHECKSUM=$(md5sum "$ZIP" | cut -d' ' -f1)" >> "$GITHUB_ENV"
+
+      - name: Créer la release GitHub et y déposer le zip
+        if: startsWith(github.ref, 'refs/tags/v')
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release view "$TAG" >/dev/null 2>&1 || gh release create "$TAG" --title "$TAG" --notes "$CHANGELOG"
+          gh release upload "$TAG" "$ZIP" --clobber
+
+      - name: Mettre à jour manifest.json sur la branche main
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: |
+          git fetch origin main
+          git checkout -B main origin/main
+          python3 scripts/make_manifest.py \
+            --version "$PV" \
+            --abi 12.0.0.0 \
+            --url "https://github.com/${GITHUB_REPOSITORY}/releases/download/${TAG}/${ZIP}" \
+            --checksum "$CHECKSUM" \
+            --changelog "$CHANGELOG" \
+            --owner "${GITHUB_REPOSITORY_OWNER}"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add manifest.json
+          git commit -m "Manifeste : version $PV" || echo "Aucun changement"
+          git push origin main

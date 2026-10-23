@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8">
+    <title>Ratings Cache</title>
+</head>
+<body>
+<div id="JellyfinRatingsCachePage" data-role="page" class="page type-interior pluginConfigurationPage" data-require="emby-input,emby-button,emby-select,emby-checkbox">
+    <div data-role="content">
+        <div class="content-primary">
+
+            <div class="verticalSection">
+                <h2 class="sectionTitle">Jellyfin Ratings Cache</h2>
+                <div class="fieldDescription">Les notes sont récupérées par le serveur, mises en cache, puis affichées sur les pages et les cartes sans rien ajouter dans index.html ni dans le CSS. Les réglages d’affichage s’appliquent aux navigateurs en moins de 5 minutes (ou au prochain rechargement de la page).</div>
+            </div>
+
+            <div class="verticalSection">
+                <h3 class="sectionTitle">État</h3>
+                <table id="jrcStatus" style="border-collapse:collapse;"><tr><td style="padding:.25em 1em .25em 0;opacity:.8;">Films et séries dans la bibliothèque</td><td id="st_items" style="padding:.25em 0;font-weight:600;">–</td></tr><tr><td style="padding:.25em 1em .25em 0;opacity:.8;">dont avec un identifiant TMDB</td><td id="st_itemsWithTmdb" style="padding:.25em 0;font-weight:600;">–</td></tr><tr><td style="padding:.25em 1em .25em 0;opacity:.8;">Titres avec des notes en cache</td><td id="st_ratingsWithData" style="padding:.25em 0;font-weight:600;">–</td></tr><tr><td style="padding:.25em 1em .25em 0;opacity:.8;">dont avec une note Letterboxd</td><td id="st_withLetterboxd" style="padding:.25em 0;font-weight:600;">–</td></tr><tr><td style="padding:.25em 1em .25em 0;opacity:.8;">dont avec une note IMDb</td><td id="st_withImdb" style="padding:.25em 0;font-weight:600;">–</td></tr><tr><td style="padding:.25em 1em .25em 0;opacity:.8;">Notes restant à récupérer ou rafraîchir</td><td id="st_toFetch" style="padding:.25em 0;font-weight:600;">–</td></tr><tr><td style="padding:.25em 1em .25em 0;opacity:.8;">Requêtes MDBList aujourd’hui</td><td id="st_budget" style="padding:.25em 0;font-weight:600;">–</td></tr><tr><td style="padding:.25em 1em .25em 0;opacity:.8;">Limite MDBList (circuit breaker)</td><td id="st_blocked" style="padding:.25em 0;font-weight:600;">–</td></tr><tr><td style="padding:.25em 1em .25em 0;opacity:.8;">Fichier des notes servi aux clients</td><td id="st_payload" style="padding:.25em 0;font-weight:600;">–</td></tr><tr><td style="padding:.25em 1em .25em 0;opacity:.8;">Fichier de cache sur le serveur</td><td id="st_cacheFile" style="padding:.25em 0;font-weight:600;">–</td></tr><tr><td style="padding:.25em 1em .25em 0;opacity:.8;">Dernier passage</td><td id="st_lastSync" style="padding:.25em 0;font-weight:600;">–</td></tr><tr><td style="padding:.25em 1em .25em 0;opacity:.8;">Prochain passage</td><td id="st_nextRun" style="padding:.25em 0;font-weight:600;">–</td></tr><tr><td style="padding:.25em 1em .25em 0;opacity:.8;">Injections du script dans index.html</td><td id="st_injections" style="padding:.25em 0;font-weight:600;">–</td></tr><tr><td style="padding:.25em 1em .25em 0;opacity:.8;">Version du plugin</td><td id="st_version" style="padding:.25em 0;font-weight:600;">–</td></tr></table>
+                <div id="jrcRunning" class="fieldDescription" style="margin-top:.6em;"></div>
+                <div style="margin-top:1em;display:flex;gap:.5em;flex-wrap:wrap;">
+                    <button is="emby-button" type="button" id="btnSync" class="raised emby-button"><span>Synchroniser maintenant</span></button>
+                    <button is="emby-button" type="button" id="btnRebuild" class="raised emby-button"><span>Reconstruire le fichier</span></button>
+                    <button is="emby-button" type="button" id="btnClearCache" class="raised emby-button"><span>Vider le cache des notes</span></button>
+                </div>
+                <div id="jrcActionMsg" class="fieldDescription" style="margin-top:.6em;"></div>
+            </div>
+
+            <form id="JellyfinRatingsCacheForm">
+
+                <div class="verticalSection">
+                    <h3 class="sectionTitle">Source des notes (MDBList)</h3>
+                    <div class="inputContainer"><label class="inputLabel inputLabelUnfocused" for="f_MdbListApiKey">Clé API MDBList</label><input id="f_MdbListApiKey" type="password" is="emby-input" data-cfg="MdbListApiKey" autocomplete="off" /><div class="fieldDescription">Clé gratuite sur mdblist.com (Preferences &gt; API). Elle reste sur le serveur : elle n’est jamais envoyée aux navigateurs.</div></div>
+                    <div style="margin-bottom:1em;display:flex;gap:.5em;align-items:center;flex-wrap:wrap;">
+                        <button is="emby-button" type="button" id="btnTestKey" class="raised emby-button"><span>Tester la clé</span></button>
+                        <span id="jrcKeyMsg" class="fieldDescription"></span>
+                    </div>
+                    <div class="checkboxContainer checkboxContainer-withDescription"><label class="emby-checkbox-label"><input type="checkbox" is="emby-checkbox" data-cfg="SyncEnabled" /><span>Récupérer et rafraîchir les notes automatiquement</span></label></div>
+                    <div class="inputContainer"><label class="inputLabel inputLabelUnfocused" for="f_TtlDays">Durée de validité d’une note (jours)</label><input id="f_TtlDays" type="number" is="emby-input" min="1" max="365" data-cfg="TtlDays" data-int="1" /><div class="fieldDescription">Au-delà, la note est rafraîchie (TTL du cache).</div></div>
+                    <div class="inputContainer"><label class="inputLabel inputLabelUnfocused" for="f_EmptyRetryDays">Nouvel essai pour les titres sans notes (jours)</label><input id="f_EmptyRetryDays" type="number" is="emby-input" min="1" max="60" data-cfg="EmptyRetryDays" data-int="1" /><div class="fieldDescription">Quand MDBList ne connaît pas encore le titre.</div></div>
+                    <div class="inputContainer"><label class="inputLabel inputLabelUnfocused" for="f_SyncIntervalMinutes">Fréquence des passages (minutes)</label><input id="f_SyncIntervalMinutes" type="number" is="emby-input" min="5" max="1440" data-cfg="SyncIntervalMinutes" data-int="1" /><div class="fieldDescription">Relecture de la bibliothèque (nouveaux films) et rafraîchissement des notes.</div></div>
+                    <div class="inputContainer"><label class="inputLabel inputLabelUnfocused" for="f_DailyBudget">Budget MDBList par jour (requêtes)</label><input id="f_DailyBudget" type="number" is="emby-input" min="1" max="100000" data-cfg="DailyBudget" data-int="1" /><div class="fieldDescription">L’offre gratuite autorise 1000 requêtes par jour (jour UTC). Les titres manquants passent en premier.</div></div>
+                    <div class="inputContainer"><label class="inputLabel inputLabelUnfocused" for="f_CallDelayMs">Pause entre deux requêtes (ms)</label><input id="f_CallDelayMs" type="number" is="emby-input" min="0" max="10000" data-cfg="CallDelayMs" data-int="1" /><div class="fieldDescription">Évite de dépasser la limite de débit de MDBList.</div></div>
+                    <div class="checkboxContainer checkboxContainer-withDescription"><label class="emby-checkbox-label"><input type="checkbox" is="emby-checkbox" data-cfg="EnableRottenTomatoesBadges" /><span>Badges Certified Fresh / Verified Hot et lien Rotten Tomatoes</span></label><div class="fieldDescription checkboxFieldDescription">Via Wikidata et la page Rotten Tomatoes. Sans effet sur les notes si le site est indisponible.</div></div>
+                </div>
+
+                <div class="verticalSection">
+                    <h3 class="sectionTitle">Page d’un film ou d’une série</h3>
+                    <div class="checkboxContainer checkboxContainer-withDescription"><label class="emby-checkbox-label"><input type="checkbox" is="emby-checkbox" data-cfg="DetailEnabled" /><span>Afficher les notes sur la page de détail</span></label></div>
+                    <div class="checkboxContainer checkboxContainer-withDescription"><label class="emby-checkbox-label"><input type="checkbox" is="emby-checkbox" data-cfg="ShowImdb" /><span>IMDb</span></label></div>
+                    <div class="checkboxContainer checkboxContainer-withDescription"><label class="emby-checkbox-label"><input type="checkbox" is="emby-checkbox" data-cfg="ShowRottenTomatoes" /><span>Rotten Tomatoes (critiques)</span></label></div>
+                    <div class="checkboxContainer checkboxContainer-withDescription"><label class="emby-checkbox-label"><input type="checkbox" is="emby-checkbox" data-cfg="ShowAudience" /><span>Popcorn (public Rotten Tomatoes)</span></label></div>
+                    <div class="checkboxContainer checkboxContainer-withDescription"><label class="emby-checkbox-label"><input type="checkbox" is="emby-checkbox" data-cfg="ShowTmdb" /><span>TMDB</span></label></div>
+                    <div class="checkboxContainer checkboxContainer-withDescription"><label class="emby-checkbox-label"><input type="checkbox" is="emby-checkbox" data-cfg="ShowLetterboxd" /><span>Letterboxd</span></label></div>
+                    <div class="inputContainer"><label class="inputLabel inputLabelUnfocused" for="f_DetailOrder">Ordre des notes</label><input id="f_DetailOrder" type="text" is="emby-input" data-cfg="DetailOrder" autocomplete="off" /><div class="fieldDescription">Codes séparés par des virgules : imdb, rt, aud, tmdb, lb. Exemple : lb,imdb,tmdb,rt,aud</div></div>
+                    <div class="checkboxContainer checkboxContainer-withDescription"><label class="emby-checkbox-label"><input type="checkbox" is="emby-checkbox" data-cfg="ShowCertification" /><span>Badge de certification d’âge (ex. 16+ Déconseillé)</span></label></div>
+                    <div class="checkboxContainer checkboxContainer-withDescription"><label class="emby-checkbox-label"><input type="checkbox" is="emby-checkbox" data-cfg="ShowCountries" /><span>Ligne « Pays » (avec drapeaux)</span></label></div>
+                    <div class="checkboxContainer checkboxContainer-withDescription"><label class="emby-checkbox-label"><input type="checkbox" is="emby-checkbox" data-cfg="ShowLanguages" /><span>Ligne « Langues » (avec drapeaux)</span></label></div>
+                    <div class="checkboxContainer checkboxContainer-withDescription"><label class="emby-checkbox-label"><input type="checkbox" is="emby-checkbox" data-cfg="ReorderExternalLinks" /><span>Réordonner les liens externes (IMDb, Rotten Tomatoes, TMDB, Letterboxd)</span></label></div>
+                    <div class="checkboxContainer checkboxContainer-withDescription"><label class="emby-checkbox-label"><input type="checkbox" is="emby-checkbox" data-cfg="ShowSeasonEpisodeRatings" /><span>Note TMDb de chaque épisode sur la page d’une saison</span></label></div>
+                    <div class="checkboxContainer checkboxContainer-withDescription"><label class="emby-checkbox-label"><input type="checkbox" is="emby-checkbox" data-cfg="ShowEpisodePageRating" /><span>Note TMDb sur la page d’un épisode</span></label></div>
+                    <div class="inputContainer"><label class="inputLabel inputLabelUnfocused" for="f_DetailLogoSize">Taille des logos (%)</label><input id="f_DetailLogoSize" type="number" is="emby-input" min="50" max="400" data-cfg="DetailLogoSize" data-int="1" /><div class="fieldDescription">100 = hauteur du texte, 150 par défaut.</div></div>
+                    <div class="selectContainer"><label class="selectLabel" for="f_DetailPosition">Position des notes</label><select is="emby-select" id="f_DetailPosition" class="emby-select-withcolor emby-select" data-cfg="DetailPosition"><option value="afterOfficialRating">Après la classification</option><option value="afterRuntime">Après la durée</option><option value="end">À la fin de la ligne</option></select><div class="fieldDescription">Dans la ligne année / durée / classification.</div></div>
+                </div>
+
+                <div class="verticalSection">
+                    <h3 class="sectionTitle">Cartes (accueil, bibliothèques, recherche…)</h3>
+                    <div class="fieldDescription" style="margin-bottom:1em;">Affiche la note devant (ou après) le texte d’une ligne de la carte, par exemple « logo Letterboxd 3.5 - 2026 ».</div>
+                    <div class="checkboxContainer checkboxContainer-withDescription"><label class="emby-checkbox-label"><input type="checkbox" is="emby-checkbox" data-cfg="CardsEnabled" /><span>Afficher les notes sur les cartes</span></label></div>
+                    <div class="checkboxContainer checkboxContainer-withDescription"><label class="emby-checkbox-label"><input type="checkbox" is="emby-checkbox" data-cfg="CardsMovies" /><span>Cartes de films</span></label></div>
+                    <div class="checkboxContainer checkboxContainer-withDescription"><label class="emby-checkbox-label"><input type="checkbox" is="emby-checkbox" data-cfg="CardsSeries" /><span>Cartes de séries</span></label></div>
+                    <div class="checkboxContainer checkboxContainer-withDescription"><label class="emby-checkbox-label"><input type="checkbox" is="emby-checkbox" data-cfg="CardsEpisodes" /><span>Cartes d’épisodes (affiche la note de la série)</span></label></div>
+                    <div class="selectContainer"><label class="selectLabel" for="f_CardsLine">Ligne de texte de la carte</label><select is="emby-select" id="f_CardsLine" class="emby-select-withcolor emby-select" data-cfg="CardsLine"><option value="secondary">Seconde ligne (année)</option><option value="first">Première ligne (titre)</option></select><div class="fieldDescription">Seconde ligne (celle de l’année, cardText-secondary) ou première ligne (le titre, cardText-first).</div></div>
+                    <div class="inputContainer"><label class="inputLabel inputLabelUnfocused" for="f_CardsSources">Notes affichées, par ordre de priorité</label><input id="f_CardsSources" type="text" is="emby-input" data-cfg="CardsSources" autocomplete="off" /><div class="fieldDescription">La première note disponible est utilisée. Codes : lb, imdb, tmdb, rt, aud. Exemple : lb,imdb,tmdb</div></div>
+                    <div class="inputContainer"><label class="inputLabel inputLabelUnfocused" for="f_CardsMaxRatings">Nombre de notes par carte</label><input id="f_CardsMaxRatings" type="number" is="emby-input" min="1" max="3" data-cfg="CardsMaxRatings" data-int="1" /><div class="fieldDescription">1 à 3 : prend les premières disponibles dans l’ordre ci-dessus.</div></div>
+                    <div class="selectContainer"><label class="selectLabel" for="f_CardsSeparator">Séparateur</label><select is="emby-select" id="f_CardsSeparator" class="emby-select-withcolor emby-select" data-cfg="CardsSeparator"><option value="-">-  (tiret)</option><option value="–">–  (tiret long)</option><option value="·">·  (point)</option><option value="•">•  (puce)</option><option value="|">|  (barre)</option></select><div class="fieldDescription">Entre la note et le texte.</div></div>
+                    <div class="checkboxContainer checkboxContainer-withDescription"><label class="emby-checkbox-label"><input type="checkbox" is="emby-checkbox" data-cfg="CardsShowLogo" /><span>Afficher le logo (sinon : abréviation LB, IMDb, TMDb…)</span></label></div>
+                    <div class="inputContainer"><label class="inputLabel inputLabelUnfocused" for="f_CardsLogoSize">Taille du logo (%)</label><input id="f_CardsLogoSize" type="number" is="emby-input" min="50" max="300" data-cfg="CardsLogoSize" data-int="1" /><div class="fieldDescription">100 = hauteur du texte.</div></div>
+                    <div class="selectContainer"><label class="selectLabel" for="f_CardsPosition">Position de la note</label><select is="emby-select" id="f_CardsPosition" class="emby-select-withcolor emby-select" data-cfg="CardsPosition"><option value="before">Avant le texte</option><option value="after">Après le texte</option></select><div class="fieldDescription">Avant ou après le texte de la ligne.</div></div>
+                    <div class="fieldDescription" style="margin-top:.8em;">Aperçu :</div>
+                    <div id="jrcPreview" style="display:inline-flex;align-items:center;padding:.4em .8em;border:1px solid rgba(255,255,255,.2);border-radius:.5em;margin-top:.3em;"></div>
+                </div>
+
+                <div class="verticalSection">
+                    <h3 class="sectionTitle">Avancé</h3>
+                    <div class="checkboxContainer checkboxContainer-withDescription"><label class="emby-checkbox-label"><input type="checkbox" is="emby-checkbox" data-cfg="HideDefaultStar" /><span>Masquer l’étoile de note TMDb d’origine de Jellyfin</span></label></div>
+                    <div class="checkboxContainer checkboxContainer-withDescription"><label class="emby-checkbox-label"><input type="checkbox" is="emby-checkbox" data-cfg="InjectScript" /><span>Injecter automatiquement le script dans index.html</span></label><div class="fieldDescription checkboxFieldDescription">À désactiver seulement si tu ajoutes toi-même &lt;script src=&quot;/JellyfinRatingsCache/client.js&quot;&gt;&lt;/script&gt; dans index.html.</div></div>
+                </div>
+
+                <div>
+                    <button is="emby-button" type="submit" class="raised button-submit block emby-button"><span>Enregistrer</span></button>
+                </div>
+            </form>
+
+            <div class="verticalSection" style="margin-top:2em;">
+                <h3 class="sectionTitle">Journal</h3>
+                <div style="display:flex;gap:.5em;flex-wrap:wrap;margin-bottom:.6em;align-items:center;">
+                    <button is="emby-button" type="button" id="btnLogsRefresh" class="raised emby-button"><span>Actualiser</span></button>
+                    <button is="emby-button" type="button" id="btnLogsClear" class="raised emby-button"><span>Effacer</span></button>
+                    <label class="emby-checkbox-label" style="margin-left:1em;"><input type="checkbox" is="emby-checkbox" id="logsAuto" checked="checked" /><span>Actualisation automatique</span></label>
+                </div>
+                <pre id="jrcLogs" style="max-height:22em;overflow:auto;white-space:pre-wrap;font-size:.8em;padding:.8em;border:1px solid rgba(255,255,255,.2);border-radius:.5em;"></pre>
+            </div>
+
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        (function () {
+            var PLUGIN_ID = '86e58b19-d945-49a1-93ff-af4b91792b99';
+            var page = document.querySelector('#JellyfinRatingsCachePage');
+            var timer = null;
+            var CDN = 'https://cdn.jsdelivr.net/gh/Druidblack/jellyfin_ratings@main/logo/';
+            var LOGO = { imdb: CDN + 'IMDb.png', rt: CDN + 'Rotten_Tomatoes.png', aud: CDN + 'Rotten_Tomatoes_positive_audience.png', tmdb: CDN + 'TMDB.png', lb: CDN + 'letterboxd.png' };
+            var LABELS = { imdb: 'IMDb', rt: 'RT', aud: 'Pop', tmdb: 'TMDb', lb: 'LB' };
+            var SAMPLE = { imdb: '7.4', rt: '83', aud: '88', tmdb: '7.2', lb: '3.5' };
+
+            function $(sel) { return page.querySelector(sel); }
+            function api(path, method, body) {
+                var opts = { method: method || 'GET', headers: { 'Authorization': 'MediaBrowser Token="' + ApiClient.accessToken() + '"' } };
+                if (body !== undefined) { opts.headers['Content-Type'] = 'application/json'; opts.body = JSON.stringify(body); }
+                return fetch(ApiClient.getUrl('JellyfinRatingsCache/' + path), opts).then(function (r) {
+                    if (!r.ok) throw new Error('HTTP ' + r.status);
+                    var ct = r.headers.get('content-type') || '';
+                    return ct.indexOf('json') > -1 ? r.json() : r.text();
+                });
+            }
+            function fmtBytes(n) { if (n == null) return '–'; if (n < 1024) return n + ' o'; if (n < 1048576) return (n / 1024).toFixed(1) + ' Ko'; return (n / 1048576).toFixed(2) + ' Mo'; }
+            function fmtTime(s) { return s ? new Date(s * 1000).toLocaleString() : '–'; }
+            function set(id, v) { var e = $('#st_' + id); if (e) e.textContent = v; }
+
+            function loadStatus() {
+                api('status').then(function (s) {
+                    set('items', s.items); set('itemsWithTmdb', s.itemsWithTmdb);
+                    set('ratingsWithData', s.ratingsWithData); set('withLetterboxd', s.withLetterboxd); set('withImdb', s.withImdb);
+                    set('toFetch', s.keySet ? s.toFetch : 'clé API manquante');
+                    set('budget', s.budgetUsed + ' / ' + s.budgetMax);
+                    set('blocked', s.blockedUntil ? 'pause jusqu’à ' + fmtTime(s.blockedUntil) : 'aucune');
+                    set('payload', fmtBytes(s.payloadBytes) + ' (' + fmtBytes(s.payloadGzipBytes) + ' compressé) · ' + s.payloadItems + ' titres');
+                    set('cacheFile', fmtBytes(s.cacheFileBytes));
+                    set('lastSync', s.lastSync ? fmtTime(s.lastSync) + ' (' + (s.lastSyncMs / 1000).toFixed(1) + ' s)' : 'jamais');
+                    set('nextRun', s.nextRun ? fmtTime(s.nextRun) : '–');
+                    set('injections', s.injections + (s.lastInjection ? ' (dernière : ' + fmtTime(s.lastInjection) + ')' : ''));
+                    set('version', s.version || '–');
+                    $('#jrcRunning').textContent = s.running ? 'Passage en cours… ' + (s.progress || '') : '';
+                }).catch(function (e) { $('#jrcRunning').textContent = 'État indisponible : ' + e.message; });
+            }
+            function loadLogs() {
+                api('logs?lines=300').then(function (t) {
+                    var pre = $('#jrcLogs'); var atBottom = pre.scrollTop + pre.clientHeight >= pre.scrollHeight - 20;
+                    pre.textContent = t || '(journal vide)'; if (atBottom) pre.scrollTop = pre.scrollHeight;
+                }).catch(function () {});
+            }
+            function action(path, msg, confirmText) {
+                if (confirmText && !confirm(confirmText)) return;
+                api(path, 'POST').then(function () { $('#jrcActionMsg').textContent = msg; loadStatus(); loadLogs(); })
+                    .catch(function (e) { $('#jrcActionMsg').textContent = 'Erreur : ' + e.message; });
+            }
+
+            function updatePreview() {
+                var p = $('#jrcPreview'); while (p.firstChild) p.removeChild(p.firstChild);
+                var sources = ($('#f_CardsSources').value || 'lb').split(',').map(function (s) { return s.trim().toLowerCase(); }).filter(function (s) { return LOGO[s]; });
+                if (!sources.length) sources = ['lb'];
+                var max = Math.max(1, Math.min(3, parseInt($('#f_CardsMaxRatings').value, 10) || 1));
+                var logo = $('[data-cfg="CardsShowLogo"]').checked;
+                var size = (parseInt($('#f_CardsLogoSize').value, 10) || 120) / 100;
+                var sep = $('#f_CardsSeparator').value || '-';
+                var after = $('#f_CardsPosition').value === 'after';
+                var line = $('#f_CardsLine').value === 'first' ? 'Titre du film' : '2026';
+                var rating = document.createElement('span'); rating.style.cssText = 'display:inline-flex;align-items:center;';
+                sources.slice(0, max).forEach(function (k) {
+                    if (logo) { var i = document.createElement('img'); i.src = LOGO[k]; i.style.cssText = 'height:' + size + 'em;margin-right:3px;'; rating.appendChild(i); }
+                    else { var l = document.createElement('span'); l.textContent = LABELS[k]; l.style.cssText = 'margin-right:3px;font-weight:600;opacity:.85;'; rating.appendChild(l); }
+                    var v = document.createElement('span'); v.textContent = SAMPLE[k]; v.style.marginRight = '4px'; rating.appendChild(v);
+                });
+                var sp = document.createElement('span'); sp.textContent = ' ' + sep + ' '; sp.style.whiteSpace = 'pre';
+                var tx = document.createElement('span'); tx.textContent = line;
+                [after ? tx : rating, sp, after ? rating : tx].forEach(function (n) { p.appendChild(n); });
+            }
+
+            function fill(config) {
+                page.querySelectorAll('[data-cfg]').forEach(function (el) {
+                    var v = config[el.getAttribute('data-cfg')];
+                    if (el.type === 'checkbox') el.checked = !!v; else if (v != null) el.value = v;
+                });
+                updatePreview();
+            }
+            function collect(config) {
+                page.querySelectorAll('[data-cfg]').forEach(function (el) {
+                    var k = el.getAttribute('data-cfg');
+                    if (el.type === 'checkbox') config[k] = el.checked;
+                    else if (el.getAttribute('data-int')) {
+                        var n = parseInt(el.value, 10);
+                        if (!isNaN(n)) config[k] = Math.max(parseInt(el.min, 10), Math.min(parseInt(el.max, 10), n));
+                    } else config[k] = el.value;
+                });
+                return config;
+            }
+
+            page.addEventListener('pageshow', function () {
+                Dashboard.showLoadingMsg();
+                ApiClient.getPluginConfiguration(PLUGIN_ID).then(function (config) { fill(config); Dashboard.hideLoadingMsg(); });
+                loadStatus(); loadLogs();
+                clearInterval(timer);
+                timer = setInterval(function () { loadStatus(); if ($('#logsAuto').checked) loadLogs(); }, 5000);
+            });
+            page.addEventListener('pagehide', function () { clearInterval(timer); });
+
+            page.querySelectorAll('input, select').forEach(function (el) { el.addEventListener('input', updatePreview); el.addEventListener('change', updatePreview); });
+
+            $('#btnSync').addEventListener('click', function () { action('sync', 'Synchronisation lancée.'); });
+            $('#btnRebuild').addEventListener('click', function () { action('rebuild', 'Fichier reconstruit.'); });
+            $('#btnClearCache').addEventListener('click', function () { action('clear-cache', 'Cache vidé : les notes sont récupérées à nouveau.', 'Vider le cache ? Les notes seront récupérées à nouveau (dans la limite du budget quotidien).'); });
+            $('#btnLogsRefresh').addEventListener('click', loadLogs);
+            $('#btnLogsClear').addEventListener('click', function () { api('clear-logs', 'POST').then(loadLogs); });
+            $('#btnTestKey').addEventListener('click', function () {
+                $('#jrcKeyMsg').textContent = 'Test en cours…';
+                api('test-key', 'POST', { key: $('#f_MdbListApiKey').value }).then(function (r) { $('#jrcKeyMsg').textContent = (r.ok ? '✔ ' : '✖ ') + r.message; })
+                    .catch(function (e) { $('#jrcKeyMsg').textContent = 'Erreur : ' + e.message; });
+            });
+
+            $('#JellyfinRatingsCacheForm').addEventListener('submit', function (e) {
+                e.preventDefault();
+                Dashboard.showLoadingMsg();
+                ApiClient.getPluginConfiguration(PLUGIN_ID).then(function (config) {
+                    ApiClient.updatePluginConfiguration(PLUGIN_ID, collect(config)).then(function (result) {
+                        Dashboard.processPluginConfigurationUpdateResult(result);
+                        loadStatus();
+                    });
+                });
+                return false;
+            });
+        })();
+    </script>
+</div>
+</body>
+</html>
