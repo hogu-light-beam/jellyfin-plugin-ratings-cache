@@ -11,18 +11,13 @@
 
             <div class="verticalSection">
                 <h2 class="sectionTitle">Jellyfin Ratings Cache</h2>
-                <div class="fieldDescription">Les notes sont récupérées par le serveur, mises en cache, puis affichées sur les pages et les cartes sans rien ajouter dans index.html ni dans le CSS. Les réglages d’affichage s’appliquent aux navigateurs en moins de 5 minutes (ou au prochain rechargement de la page).</div>
+                <div class="fieldDescription">Les notes sont récupérées par le serveur, mises en cache, puis affichées sur les pages et les cartes sans rien ajouter dans index.html ni dans le CSS. Les aperçus se mettent à jour en direct. Les réglages s’appliquent aux navigateurs en moins de 3 minutes (ou à la prochaine navigation).</div>
             </div>
 
             <div class="verticalSection">
                 <h3 class="sectionTitle">État</h3>
-                <table id="jrcStatus" style="border-collapse:collapse;"><tr><td style="padding:.25em 1em .25em 0;opacity:.8;">Films et séries dans la bibliothèque</td><td id="st_items" style="padding:.25em 0;font-weight:600;">–</td></tr><tr><td style="padding:.25em 1em .25em 0;opacity:.8;">dont avec un identifiant TMDB</td><td id="st_itemsWithTmdb" style="padding:.25em 0;font-weight:600;">–</td></tr><tr><td style="padding:.25em 1em .25em 0;opacity:.8;">Titres avec des notes en cache</td><td id="st_ratingsWithData" style="padding:.25em 0;font-weight:600;">–</td></tr><tr><td style="padding:.25em 1em .25em 0;opacity:.8;">dont avec une note Letterboxd</td><td id="st_withLetterboxd" style="padding:.25em 0;font-weight:600;">–</td></tr><tr><td style="padding:.25em 1em .25em 0;opacity:.8;">dont avec une note IMDb</td><td id="st_withImdb" style="padding:.25em 0;font-weight:600;">–</td></tr><tr><td style="padding:.25em 1em .25em 0;opacity:.8;">Notes restant à récupérer ou rafraîchir</td><td id="st_toFetch" style="padding:.25em 0;font-weight:600;">–</td></tr><tr><td style="padding:.25em 1em .25em 0;opacity:.8;">Requêtes MDBList aujourd’hui</td><td id="st_budget" style="padding:.25em 0;font-weight:600;">–</td></tr><tr><td style="padding:.25em 1em .25em 0;opacity:.8;">Limite MDBList (circuit breaker)</td><td id="st_blocked" style="padding:.25em 0;font-weight:600;">–</td></tr><tr><td style="padding:.25em 1em .25em 0;opacity:.8;">Fichier des notes servi aux clients</td><td id="st_payload" style="padding:.25em 0;font-weight:600;">–</td></tr><tr><td style="padding:.25em 1em .25em 0;opacity:.8;">Fichier de cache sur le serveur</td><td id="st_cacheFile" style="padding:.25em 0;font-weight:600;">–</td></tr><tr><td style="padding:.25em 1em .25em 0;opacity:.8;">Dernier passage</td><td id="st_lastSync" style="padding:.25em 0;font-weight:600;">–</td></tr><tr><td style="padding:.25em 1em .25em 0;opacity:.8;">Prochain passage</td><td id="st_nextRun" style="padding:.25em 0;font-weight:600;">–</td></tr><tr><td style="padding:.25em 1em .25em 0;opacity:.8;">Injections du script dans index.html</td><td id="st_injections" style="padding:.25em 0;font-weight:600;">–</td></tr><tr><td style="padding:.25em 1em .25em 0;opacity:.8;">Version du plugin</td><td id="st_version" style="padding:.25em 0;font-weight:600;">–</td></tr></table>
-                <div id="jrcRunning" class="fieldDescription" style="margin-top:.6em;"></div>
-                <div style="margin-top:1em;display:flex;gap:.5em;flex-wrap:wrap;">
-                    <button is="emby-button" type="button" id="btnSync" class="raised emby-button"><span>Synchroniser maintenant</span></button>
-                    <button is="emby-button" type="button" id="btnRebuild" class="raised emby-button"><span>Reconstruire le fichier</span></button>
-                    <button is="emby-button" type="button" id="btnClearCache" class="raised emby-button"><span>Vider le cache des notes</span></button>
-                </div>
+                <div style="margin:1em 0 .2em;"><h4 style="margin:0 0 .3em;">Synchronisation</h4><table style="border-collapse:collapse;"><tr><td style="padding:.25em 1em .25em 0;opacity:.8;vertical-align:top;">Passage en cours</td><td id="st_running" style="padding:.25em 0;font-weight:600;">–</td></tr><tr><td style="padding:.25em 1em .25em 0;opacity:.8;vertical-align:top;">Dernier passage</td><td id="st_lastRun" style="padding:.25em 0;font-weight:600;">–</td></tr><tr><td style="padding:.25em 1em .25em 0;opacity:.8;vertical-align:top;">Prochain passage</td><td id="st_nextRun" style="padding:.25em 0;font-weight:600;">–</td></tr><tr><td style="padding:.25em 1em .25em 0;opacity:.8;vertical-align:top;">Version du plugin</td><td id="st_version" style="padding:.25em 0;font-weight:600;">–</td></tr></table></div><div style="margin:1em 0 .2em;"><h4 style="margin:0 0 .3em;">Quota MDBList</h4><table style="border-collapse:collapse;"><tr><td style="padding:.25em 1em .25em 0;opacity:.8;vertical-align:top;">Compte MDBList (compteur réel)</td><td id="st_account" style="padding:.25em 0;font-weight:600;">–</td></tr><tr><td style="padding:.25em 1em .25em 0;opacity:.8;vertical-align:top;">Budget du plugin aujourd’hui</td><td id="st_plugin" style="padding:.25em 0;font-weight:600;">–</td></tr><tr><td style="padding:.25em 1em .25em 0;opacity:.8;vertical-align:top;">Remise à zéro du quota</td><td id="st_reset" style="padding:.25em 0;font-weight:600;">–</td></tr><tr><td style="padding:.25em 1em .25em 0;opacity:.8;vertical-align:top;">Dernière limite atteinte</td><td id="st_lastLimit" style="padding:.25em 0;font-weight:600;">–</td></tr><tr><td style="padding:.25em 1em .25em 0;opacity:.8;vertical-align:top;">Reprise automatique prévue</td><td id="st_resume" style="padding:.25em 0;font-weight:600;">–</td></tr></table><div style="margin-top:.6em;display:flex;gap:.5em;align-items:center;flex-wrap:wrap;"><button is="emby-button" type="button" id="btnQuota" class="raised emby-button"><span>Vérifier le quota maintenant</span></button><span id="jrcQuotaMsg" class="fieldDescription"></span></div></div><div style="margin:1em 0 .2em;"><h4 style="margin:0 0 .3em;">Bibliothèque</h4><table style="border-collapse:collapse;"><tr><td style="padding:.25em 1em .25em 0;opacity:.8;vertical-align:top;">Films</td><td id="st_movies" style="padding:.25em 0;font-weight:600;">–</td></tr><tr><td style="padding:.25em 1em .25em 0;opacity:.8;vertical-align:top;">Séries</td><td id="st_shows" style="padding:.25em 0;font-weight:600;">–</td></tr><tr><td style="padding:.25em 1em .25em 0;opacity:.8;vertical-align:top;">Total</td><td id="st_items" style="padding:.25em 0;font-weight:600;">–</td></tr><tr><td style="padding:.25em 1em .25em 0;opacity:.8;vertical-align:top;">Avec un identifiant TMDB</td><td id="st_withTmdb" style="padding:.25em 0;font-weight:600;">–</td></tr><tr><td style="padding:.25em 1em .25em 0;opacity:.8;vertical-align:top;">Sans identifiant TMDB (aucune note possible)</td><td id="st_withoutTmdb" style="padding:.25em 0;font-weight:600;">–</td></tr><tr><td style="padding:.25em 1em .25em 0;opacity:.8;vertical-align:top;">Titres distincts (éditions multiples regroupées)</td><td id="st_unique" style="padding:.25em 0;font-weight:600;">–</td></tr></table></div><div style="margin:1em 0 .2em;"><h4 style="margin:0 0 .3em;">Traitement des notes</h4><table style="border-collapse:collapse;"><tr><td style="padding:.25em 1em .25em 0;opacity:.8;vertical-align:top;">Titres traités</td><td id="st_processed" style="padding:.25em 0;font-weight:600;">–</td></tr><tr><td style="padding:.25em 1em .25em 0;opacity:.8;vertical-align:top;">À récupérer (jamais traités)</td><td id="st_missing" style="padding:.25em 0;font-weight:600;">–</td></tr><tr><td style="padding:.25em 1em .25em 0;opacity:.8;vertical-align:top;">À rafraîchir (note plus ancienne que le TTL)</td><td id="st_stale" style="padding:.25em 0;font-weight:600;">–</td></tr><tr><td style="padding:.25em 1em .25em 0;opacity:.8;vertical-align:top;">Total restant</td><td id="st_remaining" style="padding:.25em 0;font-weight:600;">–</td></tr></table><div style="margin-top:.5em;max-width:28em;height:.7em;border-radius:.4em;background:rgba(128,128,128,.3);overflow:hidden;"><div id="st_bar" style="height:100%;width:0;background:#4caf50;"></div></div><div id="st_barText" class="fieldDescription"></div></div><div style="margin:1em 0 .2em;"><h4 style="margin:0 0 .3em;">Couverture par source</h4><div class="fieldDescription">Sur les titres qui ont des notes. Un titre peut avoir plusieurs notes à la fois.</div><table id="tblCoverage" style="border-collapse:collapse;margin-top:.3em;"></table></div><div style="margin:1em 0 .2em;"><h4 style="margin:0 0 .3em;">Chevauchements</h4><div class="fieldDescription">Nombre de titres ayant à la fois la note de la ligne et celle de la colonne (la diagonale = total de la source).</div><div style="overflow-x:auto;"><table id="tblOverlap" style="border-collapse:collapse;margin-top:.3em;"></table></div></div><div style="margin:1em 0 .2em;"><h4 style="margin:0 0 .3em;">Historique des passages</h4><div style="overflow-x:auto;"><table id="tblRuns" style="border-collapse:collapse;"></table></div></div><div style="margin:1em 0 .2em;"><h4 style="margin:0 0 .3em;">Fichiers et cache</h4><table style="border-collapse:collapse;"><tr><td style="padding:.25em 1em .25em 0;opacity:.8;vertical-align:top;">Fichier des notes servi aux clients</td><td id="st_payload" style="padding:.25em 0;font-weight:600;">–</td></tr><tr><td style="padding:.25em 1em .25em 0;opacity:.8;vertical-align:top;">Cache des notes sur le serveur</td><td id="st_cacheFile" style="padding:.25em 0;font-weight:600;">–</td></tr><tr><td style="padding:.25em 1em .25em 0;opacity:.8;vertical-align:top;">Cache des critiques</td><td id="st_reviewsCache" style="padding:.25em 0;font-weight:600;">–</td></tr><tr><td style="padding:.25em 1em .25em 0;opacity:.8;vertical-align:top;">Chargements de la page d’accueil enrichis</td><td id="st_injection" style="padding:.25em 0;font-weight:600;">–</td></tr></table></div>
+                <div style="margin-top:1em;display:flex;gap:.5em;flex-wrap:wrap;"><button is="emby-button" type="button" id="btnSync" class="raised emby-button"><span>Synchroniser maintenant</span></button><button is="emby-button" type="button" id="btnRebuild" class="raised emby-button"><span>Reconstruire le fichier</span></button><button is="emby-button" type="button" id="btnClearCache" class="raised emby-button"><span>Vider le cache des notes</span></button></div>
                 <div id="jrcActionMsg" class="fieldDescription" style="margin-top:.6em;"></div>
             </div>
 
@@ -30,61 +25,56 @@
 
                 <div class="verticalSection">
                     <h3 class="sectionTitle">Source des notes (MDBList)</h3>
-                    <div class="inputContainer"><label class="inputLabel inputLabelUnfocused" for="f_MdbListApiKey">Clé API MDBList</label><input id="f_MdbListApiKey" type="password" is="emby-input" data-cfg="MdbListApiKey" autocomplete="off" /><div class="fieldDescription">Clé gratuite sur mdblist.com (Preferences &gt; API). Elle reste sur le serveur : elle n’est jamais envoyée aux navigateurs.</div></div>
+                    <div class="inputContainer"><label class="inputLabel inputLabelUnfocused" for="f_MdbListApiKey">Clé API MDBList</label><input id="f_MdbListApiKey" type="password" is="emby-input" data-cfg="MdbListApiKey" autocomplete="off" maxlength="128" /><div class="fieldDescription">Clé gratuite sur mdblist.com (Preferences &gt; API). Elle reste sur le serveur : elle n’est jamais envoyée aux navigateurs.</div></div>
                     <div style="margin-bottom:1em;display:flex;gap:.5em;align-items:center;flex-wrap:wrap;">
                         <button is="emby-button" type="button" id="btnTestKey" class="raised emby-button"><span>Tester la clé</span></button>
                         <span id="jrcKeyMsg" class="fieldDescription"></span>
                     </div>
-                    <div class="checkboxContainer checkboxContainer-withDescription"><label class="emby-checkbox-label"><input type="checkbox" is="emby-checkbox" data-cfg="SyncEnabled" /><span>Récupérer et rafraîchir les notes automatiquement</span></label></div>
-                    <div class="inputContainer"><label class="inputLabel inputLabelUnfocused" for="f_TtlDays">Durée de validité d’une note (jours)</label><input id="f_TtlDays" type="number" is="emby-input" min="1" max="365" data-cfg="TtlDays" data-int="1" /><div class="fieldDescription">Au-delà, la note est rafraîchie (TTL du cache).</div></div>
-                    <div class="inputContainer"><label class="inputLabel inputLabelUnfocused" for="f_EmptyRetryDays">Nouvel essai pour les titres sans notes (jours)</label><input id="f_EmptyRetryDays" type="number" is="emby-input" min="1" max="60" data-cfg="EmptyRetryDays" data-int="1" /><div class="fieldDescription">Quand MDBList ne connaît pas encore le titre.</div></div>
-                    <div class="inputContainer"><label class="inputLabel inputLabelUnfocused" for="f_SyncIntervalMinutes">Fréquence des passages (minutes)</label><input id="f_SyncIntervalMinutes" type="number" is="emby-input" min="5" max="1440" data-cfg="SyncIntervalMinutes" data-int="1" /><div class="fieldDescription">Relecture de la bibliothèque (nouveaux films) et rafraîchissement des notes.</div></div>
-                    <div class="inputContainer"><label class="inputLabel inputLabelUnfocused" for="f_DailyBudget">Budget MDBList par jour (requêtes)</label><input id="f_DailyBudget" type="number" is="emby-input" min="1" max="100000" data-cfg="DailyBudget" data-int="1" /><div class="fieldDescription">L’offre gratuite autorise 1000 requêtes par jour (jour UTC). Les titres manquants passent en premier.</div></div>
-                    <div class="inputContainer"><label class="inputLabel inputLabelUnfocused" for="f_CallDelayMs">Pause entre deux requêtes (ms)</label><input id="f_CallDelayMs" type="number" is="emby-input" min="0" max="10000" data-cfg="CallDelayMs" data-int="1" /><div class="fieldDescription">Évite de dépasser la limite de débit de MDBList.</div></div>
-                    <div class="checkboxContainer checkboxContainer-withDescription"><label class="emby-checkbox-label"><input type="checkbox" is="emby-checkbox" data-cfg="EnableRottenTomatoesBadges" /><span>Badges Certified Fresh / Verified Hot et lien Rotten Tomatoes</span></label><div class="fieldDescription checkboxFieldDescription">Via Wikidata et la page Rotten Tomatoes. Sans effet sur les notes si le site est indisponible.</div></div>
+                    <div class="checkboxContainer checkboxContainer-withDescription"><label class="emby-checkbox-label"><input type="checkbox" is="emby-checkbox" data-cfg="SyncEnabled" /><span>Récupérer et rafraîchir les notes automatiquement</span></label></div><div class="checkboxContainer checkboxContainer-withDescription"><label class="emby-checkbox-label"><input type="checkbox" is="emby-checkbox" data-cfg="UseAccountQuota" /><span>Lire le compteur réel du compte MDBList</span></label><div class="fieldDescription checkboxFieldDescription">Le quota MDBList est partagé par toutes tes clés et applications : le plugin lit le compteur réel avant de consommer son budget.</div></div><div class="inputContainer"><label class="inputLabel inputLabelUnfocused" for="f_DailyBudget">Budget MDBList par jour (requêtes) (10 à 20000)</label><input id="f_DailyBudget" type="number" is="emby-input" min="10" max="20000" step="1" data-cfg="DailyBudget" data-int="1" /><div class="fieldDescription">Le plugin s’arrête quand le compteur atteint cette valeur (l’offre gratuite autorise 1000). Les titres manquants passent en premier.</div></div><div class="inputContainer"><label class="inputLabel inputLabelUnfocused" for="f_QuotaResetUtc">Heure de remise à zéro du quota (UTC, HH:mm)</label><input id="f_QuotaResetUtc" type="text" is="emby-input" data-cfg="QuotaResetUtc" autocomplete="off" maxlength="5" placeholder="00:00" /><div class="fieldDescription">Quand le quota MDBList revient à zéro. La reprise après une limite est planifiée à cette heure exacte, au lieu d’un passage toutes les 30 minutes. <b id="jrcResetHint"></b><br />Vérifie avec « Vérifier le quota maintenant » juste après l’heure prévue : si le compteur du compte n’est pas revenu à zéro, ajuste cette heure.</div></div><div class="inputContainer"><label class="inputLabel inputLabelUnfocused" for="f_TtlDays">Durée de validité d’une note (jours) (1 à 365)</label><input id="f_TtlDays" type="number" is="emby-input" min="1" max="365" step="1" data-cfg="TtlDays" data-int="1" /><div class="fieldDescription">Au-delà, la note est rafraîchie (TTL du cache).</div></div><div class="inputContainer"><label class="inputLabel inputLabelUnfocused" for="f_EmptyRetryDays">Nouvel essai pour les titres sans notes (jours) (1 à 60)</label><input id="f_EmptyRetryDays" type="number" is="emby-input" min="1" max="60" step="1" data-cfg="EmptyRetryDays" data-int="1" /><div class="fieldDescription">Quand MDBList ne connaît pas encore le titre.</div></div><div class="inputContainer"><label class="inputLabel inputLabelUnfocused" for="f_SyncIntervalMinutes">Fréquence des passages (minutes) (5 à 1440)</label><input id="f_SyncIntervalMinutes" type="number" is="emby-input" min="5" max="1440" step="1" data-cfg="SyncIntervalMinutes" data-int="1" /><div class="fieldDescription">Relecture de la bibliothèque et rafraîchissement des notes (nouveaux films). Un film ajouté déclenche aussi un passage 90 secondes plus tard. Quand la limite est atteinte, aucun passage inutile : reprise à l’heure de remise à zéro.</div></div><div class="inputContainer"><label class="inputLabel inputLabelUnfocused" for="f_CallDelayMs">Pause entre deux requêtes (ms) (100 à 10000)</label><input id="f_CallDelayMs" type="number" is="emby-input" min="100" max="10000" step="1" data-cfg="CallDelayMs" data-int="1" /><div class="fieldDescription">Évite de dépasser la limite de débit de MDBList (le plugin limite aussi à 800 requêtes par 5 minutes).</div></div><div class="checkboxContainer checkboxContainer-withDescription"><label class="emby-checkbox-label"><input type="checkbox" is="emby-checkbox" data-cfg="EnableRottenTomatoesBadges" /><span>Badges Certified Fresh / Verified Hot et lien Rotten Tomatoes</span></label><div class="fieldDescription checkboxFieldDescription">Via Wikidata et la page Rotten Tomatoes. Sans effet sur les notes si le site est indisponible.</div></div>
                 </div>
 
                 <div class="verticalSection">
                     <h3 class="sectionTitle">Page d’un film ou d’une série</h3>
-                    <div class="checkboxContainer checkboxContainer-withDescription"><label class="emby-checkbox-label"><input type="checkbox" is="emby-checkbox" data-cfg="DetailEnabled" /><span>Afficher les notes sur la page de détail</span></label></div>
-                    <div class="checkboxContainer checkboxContainer-withDescription"><label class="emby-checkbox-label"><input type="checkbox" is="emby-checkbox" data-cfg="ShowImdb" /><span>IMDb</span></label></div>
-                    <div class="checkboxContainer checkboxContainer-withDescription"><label class="emby-checkbox-label"><input type="checkbox" is="emby-checkbox" data-cfg="ShowRottenTomatoes" /><span>Rotten Tomatoes (critiques)</span></label></div>
-                    <div class="checkboxContainer checkboxContainer-withDescription"><label class="emby-checkbox-label"><input type="checkbox" is="emby-checkbox" data-cfg="ShowAudience" /><span>Popcorn (public Rotten Tomatoes)</span></label></div>
-                    <div class="checkboxContainer checkboxContainer-withDescription"><label class="emby-checkbox-label"><input type="checkbox" is="emby-checkbox" data-cfg="ShowTmdb" /><span>TMDB</span></label></div>
-                    <div class="checkboxContainer checkboxContainer-withDescription"><label class="emby-checkbox-label"><input type="checkbox" is="emby-checkbox" data-cfg="ShowLetterboxd" /><span>Letterboxd</span></label></div>
-                    <div class="inputContainer"><label class="inputLabel inputLabelUnfocused" for="f_DetailOrder">Ordre des notes</label><input id="f_DetailOrder" type="text" is="emby-input" data-cfg="DetailOrder" autocomplete="off" /><div class="fieldDescription">Codes séparés par des virgules : imdb, rt, aud, tmdb, lb. Exemple : lb,imdb,tmdb,rt,aud</div></div>
-                    <div class="checkboxContainer checkboxContainer-withDescription"><label class="emby-checkbox-label"><input type="checkbox" is="emby-checkbox" data-cfg="ShowCertification" /><span>Badge de certification d’âge (ex. 16+ Déconseillé)</span></label></div>
-                    <div class="checkboxContainer checkboxContainer-withDescription"><label class="emby-checkbox-label"><input type="checkbox" is="emby-checkbox" data-cfg="ShowCountries" /><span>Ligne « Pays » (avec drapeaux)</span></label></div>
-                    <div class="checkboxContainer checkboxContainer-withDescription"><label class="emby-checkbox-label"><input type="checkbox" is="emby-checkbox" data-cfg="ShowLanguages" /><span>Ligne « Langues » (avec drapeaux)</span></label></div>
-                    <div class="checkboxContainer checkboxContainer-withDescription"><label class="emby-checkbox-label"><input type="checkbox" is="emby-checkbox" data-cfg="ReorderExternalLinks" /><span>Réordonner les liens externes (IMDb, Rotten Tomatoes, TMDB, Letterboxd)</span></label></div>
-                    <div class="checkboxContainer checkboxContainer-withDescription"><label class="emby-checkbox-label"><input type="checkbox" is="emby-checkbox" data-cfg="ShowSeasonEpisodeRatings" /><span>Note TMDb de chaque épisode sur la page d’une saison</span></label></div>
-                    <div class="checkboxContainer checkboxContainer-withDescription"><label class="emby-checkbox-label"><input type="checkbox" is="emby-checkbox" data-cfg="ShowEpisodePageRating" /><span>Note TMDb sur la page d’un épisode</span></label></div>
-                    <div class="inputContainer"><label class="inputLabel inputLabelUnfocused" for="f_DetailLogoSize">Taille des logos (%)</label><input id="f_DetailLogoSize" type="number" is="emby-input" min="50" max="400" data-cfg="DetailLogoSize" data-int="1" /><div class="fieldDescription">100 = hauteur du texte, 150 par défaut.</div></div>
-                    <div class="selectContainer"><label class="selectLabel" for="f_DetailPosition">Position des notes</label><select is="emby-select" id="f_DetailPosition" class="emby-select-withcolor emby-select" data-cfg="DetailPosition"><option value="afterOfficialRating">Après la classification</option><option value="afterRuntime">Après la durée</option><option value="end">À la fin de la ligne</option></select><div class="fieldDescription">Dans la ligne année / durée / classification.</div></div>
+                    <div class="checkboxContainer checkboxContainer-withDescription"><label class="emby-checkbox-label"><input type="checkbox" is="emby-checkbox" data-cfg="DetailEnabled" /><span>Afficher les notes sur la page de détail</span></label></div><div class="checkboxContainer checkboxContainer-withDescription"><label class="emby-checkbox-label"><input type="checkbox" is="emby-checkbox" data-cfg="ShowImdb" /><span>IMDb</span></label></div><div class="checkboxContainer checkboxContainer-withDescription"><label class="emby-checkbox-label"><input type="checkbox" is="emby-checkbox" data-cfg="ShowRottenTomatoes" /><span>Rotten Tomatoes (critiques)</span></label></div><div class="checkboxContainer checkboxContainer-withDescription"><label class="emby-checkbox-label"><input type="checkbox" is="emby-checkbox" data-cfg="ShowAudience" /><span>Popcorn (public Rotten Tomatoes)</span></label></div><div class="checkboxContainer checkboxContainer-withDescription"><label class="emby-checkbox-label"><input type="checkbox" is="emby-checkbox" data-cfg="ShowTmdb" /><span>TMDB</span></label></div><div class="checkboxContainer checkboxContainer-withDescription"><label class="emby-checkbox-label"><input type="checkbox" is="emby-checkbox" data-cfg="ShowLetterboxd" /><span>Letterboxd</span></label></div><div class="inputContainer"><label class="inputLabel inputLabelUnfocused" for="f_DetailOrder">Ordre des notes</label><input id="f_DetailOrder" type="text" is="emby-input" data-cfg="DetailOrder" autocomplete="off" maxlength="40" /><div class="fieldDescription">Codes séparés par des virgules : imdb, rt, aud, tmdb, lb. Exemple : lb,imdb,tmdb,rt,aud (corrigé automatiquement).</div></div><div class="checkboxContainer checkboxContainer-withDescription"><label class="emby-checkbox-label"><input type="checkbox" is="emby-checkbox" data-cfg="ShowCertification" /><span>Badge de certification d’âge (ex. 16+ Déconseillé)</span></label></div><div class="checkboxContainer checkboxContainer-withDescription"><label class="emby-checkbox-label"><input type="checkbox" is="emby-checkbox" data-cfg="ShowCountries" /><span>Ligne « Pays » (avec drapeaux)</span></label></div><div class="checkboxContainer checkboxContainer-withDescription"><label class="emby-checkbox-label"><input type="checkbox" is="emby-checkbox" data-cfg="ShowLanguages" /><span>Ligne « Langues » (avec drapeaux)</span></label></div><div class="checkboxContainer checkboxContainer-withDescription"><label class="emby-checkbox-label"><input type="checkbox" is="emby-checkbox" data-cfg="ReorderExternalLinks" /><span>Réordonner les liens externes (IMDb, Rotten Tomatoes, TMDB, Letterboxd)</span></label></div><div class="checkboxContainer checkboxContainer-withDescription"><label class="emby-checkbox-label"><input type="checkbox" is="emby-checkbox" data-cfg="ShowSeasonEpisodeRatings" /><span>Note TMDb de chaque épisode sur la page d’une saison</span></label></div><div class="checkboxContainer checkboxContainer-withDescription"><label class="emby-checkbox-label"><input type="checkbox" is="emby-checkbox" data-cfg="ShowEpisodePageRating" /><span>Note TMDb sur la page d’un épisode</span></label></div><div class="inputContainer"><label class="inputLabel inputLabelUnfocused" for="f_DetailLogoSize">Taille des logos : <b id="v_DetailLogoSize"></b> % (limites : 60 à 200)</label><input id="f_DetailLogoSize" type="range" min="60" max="200" step="10" data-cfg="DetailLogoSize" data-int="1" style="width:100%;" /><div class="fieldDescription">100 % = hauteur du texte, 150 % par défaut.</div></div><div class="selectContainer"><label class="selectLabel" for="f_DetailPosition">Position des notes</label><select is="emby-select" id="f_DetailPosition" class="emby-select-withcolor emby-select" data-cfg="DetailPosition"><option value="afterOfficialRating">Après la classification</option><option value="afterRuntime">Après la durée</option><option value="end">À la fin de la ligne</option></select><div class="fieldDescription">Dans la ligne année / durée / classification.</div></div>
+                    <div class="fieldDescription" style="margin-top:1em;">Aperçu (valeurs d’exemple) :</div>
+                    <div id="jrcDetailPreview" style="margin-top:.3em;padding:1em;border:1px solid rgba(255,255,255,.2);border-radius:.6em;max-width:46em;"></div>
                 </div>
 
                 <div class="verticalSection">
                     <h3 class="sectionTitle">Cartes (accueil, bibliothèques, recherche…)</h3>
                     <div class="fieldDescription" style="margin-bottom:1em;">Affiche la note devant (ou après) le texte d’une ligne de la carte, par exemple « logo Letterboxd 3.5 - 2026 ».</div>
-                    <div class="checkboxContainer checkboxContainer-withDescription"><label class="emby-checkbox-label"><input type="checkbox" is="emby-checkbox" data-cfg="CardsEnabled" /><span>Afficher les notes sur les cartes</span></label></div>
-                    <div class="checkboxContainer checkboxContainer-withDescription"><label class="emby-checkbox-label"><input type="checkbox" is="emby-checkbox" data-cfg="CardsMovies" /><span>Cartes de films</span></label></div>
-                    <div class="checkboxContainer checkboxContainer-withDescription"><label class="emby-checkbox-label"><input type="checkbox" is="emby-checkbox" data-cfg="CardsSeries" /><span>Cartes de séries</span></label></div>
-                    <div class="checkboxContainer checkboxContainer-withDescription"><label class="emby-checkbox-label"><input type="checkbox" is="emby-checkbox" data-cfg="CardsEpisodes" /><span>Cartes d’épisodes (affiche la note de la série)</span></label></div>
-                    <div class="selectContainer"><label class="selectLabel" for="f_CardsLine">Ligne de texte de la carte</label><select is="emby-select" id="f_CardsLine" class="emby-select-withcolor emby-select" data-cfg="CardsLine"><option value="secondary">Seconde ligne (année)</option><option value="first">Première ligne (titre)</option></select><div class="fieldDescription">Seconde ligne (celle de l’année, cardText-secondary) ou première ligne (le titre, cardText-first).</div></div>
-                    <div class="inputContainer"><label class="inputLabel inputLabelUnfocused" for="f_CardsSources">Notes affichées, par ordre de priorité</label><input id="f_CardsSources" type="text" is="emby-input" data-cfg="CardsSources" autocomplete="off" /><div class="fieldDescription">La première note disponible est utilisée. Codes : lb, imdb, tmdb, rt, aud. Exemple : lb,imdb,tmdb</div></div>
-                    <div class="inputContainer"><label class="inputLabel inputLabelUnfocused" for="f_CardsMaxRatings">Nombre de notes par carte</label><input id="f_CardsMaxRatings" type="number" is="emby-input" min="1" max="3" data-cfg="CardsMaxRatings" data-int="1" /><div class="fieldDescription">1 à 3 : prend les premières disponibles dans l’ordre ci-dessus.</div></div>
-                    <div class="selectContainer"><label class="selectLabel" for="f_CardsSeparator">Séparateur</label><select is="emby-select" id="f_CardsSeparator" class="emby-select-withcolor emby-select" data-cfg="CardsSeparator"><option value="-">-  (tiret)</option><option value="–">–  (tiret long)</option><option value="·">·  (point)</option><option value="•">•  (puce)</option><option value="|">|  (barre)</option></select><div class="fieldDescription">Entre la note et le texte.</div></div>
-                    <div class="checkboxContainer checkboxContainer-withDescription"><label class="emby-checkbox-label"><input type="checkbox" is="emby-checkbox" data-cfg="CardsShowLogo" /><span>Afficher le logo (sinon : abréviation LB, IMDb, TMDb…)</span></label></div>
-                    <div class="inputContainer"><label class="inputLabel inputLabelUnfocused" for="f_CardsLogoSize">Taille du logo (%)</label><input id="f_CardsLogoSize" type="number" is="emby-input" min="50" max="300" data-cfg="CardsLogoSize" data-int="1" /><div class="fieldDescription">100 = hauteur du texte.</div></div>
-                    <div class="selectContainer"><label class="selectLabel" for="f_CardsPosition">Position de la note</label><select is="emby-select" id="f_CardsPosition" class="emby-select-withcolor emby-select" data-cfg="CardsPosition"><option value="before">Avant le texte</option><option value="after">Après le texte</option></select><div class="fieldDescription">Avant ou après le texte de la ligne.</div></div>
-                    <div class="fieldDescription" style="margin-top:.8em;">Aperçu :</div>
-                    <div id="jrcPreview" style="display:inline-flex;align-items:center;padding:.4em .8em;border:1px solid rgba(255,255,255,.2);border-radius:.5em;margin-top:.3em;"></div>
+                    <div class="checkboxContainer checkboxContainer-withDescription"><label class="emby-checkbox-label"><input type="checkbox" is="emby-checkbox" data-cfg="CardsEnabled" /><span>Afficher les notes sur les cartes</span></label></div><div class="checkboxContainer checkboxContainer-withDescription"><label class="emby-checkbox-label"><input type="checkbox" is="emby-checkbox" data-cfg="CardsMovies" /><span>Cartes de films</span></label></div><div class="checkboxContainer checkboxContainer-withDescription"><label class="emby-checkbox-label"><input type="checkbox" is="emby-checkbox" data-cfg="CardsSeries" /><span>Cartes de séries</span></label></div><div class="checkboxContainer checkboxContainer-withDescription"><label class="emby-checkbox-label"><input type="checkbox" is="emby-checkbox" data-cfg="CardsEpisodes" /><span>Cartes d’épisodes (affiche la note de la série)</span></label></div><div class="selectContainer"><label class="selectLabel" for="f_CardsLine">Ligne de texte de la carte</label><select is="emby-select" id="f_CardsLine" class="emby-select-withcolor emby-select" data-cfg="CardsLine"><option value="secondary">Seconde ligne (année)</option><option value="first">Première ligne (titre)</option></select><div class="fieldDescription">Seconde ligne (celle de l’année, cardText-secondary) ou première ligne (le titre, cardText-first).</div></div><div class="inputContainer"><label class="inputLabel inputLabelUnfocused" for="f_CardsSources">Notes affichées, par ordre de priorité</label><input id="f_CardsSources" type="text" is="emby-input" data-cfg="CardsSources" autocomplete="off" maxlength="40" /><div class="fieldDescription">La première note disponible est utilisée. Codes : lb, imdb, tmdb, rt, aud. Exemple : lb,imdb,tmdb (corrigé automatiquement).</div></div><div class="selectContainer"><label class="selectLabel" for="f_CardsMaxRatings">Nombre de notes par carte</label><select is="emby-select" id="f_CardsMaxRatings" class="emby-select-withcolor emby-select" data-cfg="CardsMaxRatings" data-numeric="1"><option value="1">1 note</option><option value="2">2 notes</option><option value="3">3 notes</option></select><div class="fieldDescription">Prend les premières disponibles dans l’ordre ci-dessus.</div></div><div class="selectContainer"><label class="selectLabel" for="f_CardsSeparator">Séparateur</label><select is="emby-select" id="f_CardsSeparator" class="emby-select-withcolor emby-select" data-cfg="CardsSeparator"><option value="dash">-  (tiret)</option><option value="endash">–  (tiret long)</option><option value="dot">·  (point)</option><option value="bullet">•  (puce)</option><option value="bar">|  (barre)</option><option value="slash">/  (barre oblique)</option></select><div class="fieldDescription">Entre la note et le texte.</div></div><div class="checkboxContainer checkboxContainer-withDescription"><label class="emby-checkbox-label"><input type="checkbox" is="emby-checkbox" data-cfg="CardsShowLogo" /><span>Afficher le logo (sinon : abréviation LB, IMDb, TMDb…)</span></label></div><div class="inputContainer"><label class="inputLabel inputLabelUnfocused" for="f_CardsLogoSize">Taille du logo : <b id="v_CardsLogoSize"></b> % (limites : 60 à 180)</label><input id="f_CardsLogoSize" type="range" min="60" max="180" step="10" data-cfg="CardsLogoSize" data-int="1" style="width:100%;" /><div class="fieldDescription">100 % = hauteur du texte, 120 % par défaut.</div></div><div class="selectContainer"><label class="selectLabel" for="f_CardsPosition">Position de la note</label><select is="emby-select" id="f_CardsPosition" class="emby-select-withcolor emby-select" data-cfg="CardsPosition"><option value="before">Avant le texte</option><option value="after">Après le texte</option></select><div class="fieldDescription">Avant ou après le texte de la ligne.</div></div>
+                    <div class="fieldDescription" style="margin-top:1em;">Aperçu d’une carte (valeurs d’exemple) :</div>
+                    <div id="jrcCardPreview" style="margin-top:.3em;"></div>
+                </div>
+
+                <div class="verticalSection">
+                    <h3 class="sectionTitle">Plugin Media Bar (diaporama de l’accueil)</h3>
+                    <div class="fieldDescription" style="margin-bottom:1em;">Remplace ou complète l’étoile de note de la ligne d’infos de chaque diapositive. Sans effet si le plugin Media Bar n’est pas installé.</div>
+                    <div class="checkboxContainer checkboxContainer-withDescription"><label class="emby-checkbox-label"><input type="checkbox" is="emby-checkbox" data-cfg="MediaBarEnabled" /><span>Afficher les notes dans la Media Bar</span></label></div><div class="inputContainer"><label class="inputLabel inputLabelUnfocused" for="f_MediaBarSources">Notes affichées, par ordre de priorité</label><input id="f_MediaBarSources" type="text" is="emby-input" data-cfg="MediaBarSources" autocomplete="off" maxlength="40" /><div class="fieldDescription">Les premières notes disponibles sont utilisées. Codes : lb, imdb, tmdb, rt, aud (corrigé automatiquement).</div></div><div class="selectContainer"><label class="selectLabel" for="f_MediaBarMaxRatings">Nombre de notes par diapositive</label><select is="emby-select" id="f_MediaBarMaxRatings" class="emby-select-withcolor emby-select" data-cfg="MediaBarMaxRatings" data-numeric="1"><option value="1">1 note</option><option value="2">2 notes</option><option value="3">3 notes</option><option value="4">4 notes</option><option value="5">5 notes</option></select><div class="fieldDescription">Prend les premières disponibles dans l’ordre ci-dessus.</div></div><div class="checkboxContainer checkboxContainer-withDescription"><label class="emby-checkbox-label"><input type="checkbox" is="emby-checkbox" data-cfg="MediaBarShowLogo" /><span>Afficher les logos (sinon : abréviations)</span></label></div><div class="inputContainer"><label class="inputLabel inputLabelUnfocused" for="f_MediaBarLogoSize">Taille des logos : <b id="v_MediaBarLogoSize"></b> % (limites : 60 à 200)</label><input id="f_MediaBarLogoSize" type="range" min="60" max="200" step="10" data-cfg="MediaBarLogoSize" data-int="1" style="width:100%;" /><div class="fieldDescription">100 % = hauteur du texte, 130 % par défaut.</div></div><div class="selectContainer"><label class="selectLabel" for="f_MediaBarPosition">Position dans la ligne d’infos</label><select is="emby-select" id="f_MediaBarPosition" class="emby-select-withcolor emby-select" data-cfg="MediaBarPosition"><option value="start">Au début (à la place de l’étoile)</option><option value="afterDate">Après l’année</option><option value="afterAge">Après la classification</option><option value="end">À la fin</option></select><div class="fieldDescription">La ligne contient : étoile, année, classification, heure de fin.</div></div><div class="checkboxContainer checkboxContainer-withDescription"><label class="emby-checkbox-label"><input type="checkbox" is="emby-checkbox" data-cfg="MediaBarHideStar" /><span>Masquer l’étoile TMDb d’origine</span></label><div class="fieldDescription checkboxFieldDescription">Seulement quand le titre a au moins une note : sinon l’étoile d’origine reste affichée.</div></div>
+                    <div class="fieldDescription" style="margin-top:1em;">Aperçu de la ligne d’infos (valeurs d’exemple) :</div>
+                    <div id="jrcMbPreview" style="margin-top:.3em;padding:.8em 1em;border:1px solid rgba(255,255,255,.2);border-radius:.6em;max-width:46em;"></div>
+                </div>
+
+                <div class="verticalSection">
+                    <h3 class="sectionTitle">Critiques et commentaires (TMDb, Trakt)</h3>
+                    <div class="fieldDescription" style="margin-bottom:1em;">Affiche des critiques d’utilisateurs sur la page d’un film ou d’une série. Elles sont téléchargées à la première consultation d’un titre (rien n’est téléchargé pour les titres que personne n’ouvre), puis conservées en cache.
+                        <br />Clé TMDb gratuite : themoviedb.org &gt; Paramètres &gt; API (clé v3, ou « Jeton d’accès en lecture »). Client ID Trakt gratuit : trakt.tv/oauth/applications &gt; Nouvelle application.
+                        <br />Letterboxd et Rotten Tomatoes ne proposent pas d’API publique de critiques : elles ne sont pas disponibles.
+                        <br />Si le plugin Jellyfin Enhanced affiche déjà des critiques TMDb, désactive l’une des deux sections pour éviter un doublon.</div>
+                    <div class="checkboxContainer checkboxContainer-withDescription"><label class="emby-checkbox-label"><input type="checkbox" is="emby-checkbox" data-cfg="ReviewsEnabled" /><span>Afficher des critiques sur la page d’un film ou d’une série</span></label></div><div class="inputContainer"><label class="inputLabel inputLabelUnfocused" for="f_TmdbApiKey">Clé API TMDb</label><input id="f_TmdbApiKey" type="password" is="emby-input" data-cfg="TmdbApiKey" autocomplete="off" maxlength="400" /><div class="fieldDescription">Clé v3 ou jeton « Read Access Token » (v4). Reste sur le serveur.</div></div><div class="inputContainer"><label class="inputLabel inputLabelUnfocused" for="f_TraktClientId">Client ID Trakt</label><input id="f_TraktClientId" type="password" is="emby-input" data-cfg="TraktClientId" autocomplete="off" maxlength="128" /><div class="fieldDescription">Reste sur le serveur.</div></div><div class="checkboxContainer checkboxContainer-withDescription"><label class="emby-checkbox-label"><input type="checkbox" is="emby-checkbox" data-cfg="ReviewsUseTmdb" /><span>Source TMDb (critiques d’utilisateurs)</span></label></div><div class="checkboxContainer checkboxContainer-withDescription"><label class="emby-checkbox-label"><input type="checkbox" is="emby-checkbox" data-cfg="ReviewsUseTrakt" /><span>Source Trakt (commentaires, nécessite l’identifiant IMDb du titre)</span></label></div><div class="inputContainer"><label class="inputLabel inputLabelUnfocused" for="f_ReviewsPerSource">Critiques affichées par source (1 à 10)</label><input id="f_ReviewsPerSource" type="number" is="emby-input" min="1" max="10" step="1" data-cfg="ReviewsPerSource" data-int="1" /><div class="fieldDescription">Maximum par source (TMDb, Trakt).</div></div><div class="inputContainer"><label class="inputLabel inputLabelUnfocused" for="f_ReviewsTotalMax">Critiques affichées au total (1 à 30)</label><input id="f_ReviewsTotalMax" type="number" is="emby-input" min="1" max="30" step="1" data-cfg="ReviewsTotalMax" data-int="1" /><div class="fieldDescription">Plafond sur l’ensemble des sources.</div></div><div class="selectContainer"><label class="selectLabel" for="f_ReviewsGrouping">Regroupement</label><select is="emby-select" id="f_ReviewsGrouping" class="emby-select-withcolor emby-select" data-cfg="ReviewsGrouping"><option value="mixed">Une seule liste (toutes sources mélangées)</option><option value="bySource">Une section par source</option></select><div class="fieldDescription">Une seule liste mélangée ou une section par source.</div></div><div class="selectContainer"><label class="selectLabel" for="f_ReviewsSort">Tri</label><select is="emby-select" id="f_ReviewsSort" class="emby-select-withcolor emby-select" data-cfg="ReviewsSort"><option value="likes">Les plus aimées d’abord</option><option value="recent">Les plus récentes d’abord</option><option value="rating">Les mieux notées d’abord</option></select><div class="fieldDescription">Appliqué à chaque source, puis à la liste mélangée.</div></div><div class="inputContainer"><label class="inputLabel inputLabelUnfocused" for="f_ReviewsMaxChars">Longueur affichée avant « Lire la suite » (caractères) (100 à 1500)</label><input id="f_ReviewsMaxChars" type="number" is="emby-input" min="100" max="1500" step="1" data-cfg="ReviewsMaxChars" data-int="1" /><div class="fieldDescription">Le texte complet s’affiche au clic.</div></div><div class="checkboxContainer checkboxContainer-withDescription"><label class="emby-checkbox-label"><input type="checkbox" is="emby-checkbox" data-cfg="ReviewsShowAuthor" /><span>Afficher l’auteur (avec lien vers l’avis d’origine)</span></label></div><div class="checkboxContainer checkboxContainer-withDescription"><label class="emby-checkbox-label"><input type="checkbox" is="emby-checkbox" data-cfg="ReviewsShowRating" /><span>Afficher la note donnée par l’auteur</span></label></div><div class="checkboxContainer checkboxContainer-withDescription"><label class="emby-checkbox-label"><input type="checkbox" is="emby-checkbox" data-cfg="ReviewsShowDate" /><span>Afficher la date</span></label></div><div class="checkboxContainer checkboxContainer-withDescription"><label class="emby-checkbox-label"><input type="checkbox" is="emby-checkbox" data-cfg="ReviewsShowSource" /><span>Afficher la source (TMDb, Trakt)</span></label></div><div class="checkboxContainer checkboxContainer-withDescription"><label class="emby-checkbox-label"><input type="checkbox" is="emby-checkbox" data-cfg="ReviewsShowLikes" /><span>Afficher le nombre de « j’aime »</span></label></div><div class="checkboxContainer checkboxContainer-withDescription"><label class="emby-checkbox-label"><input type="checkbox" is="emby-checkbox" data-cfg="ReviewsHideSpoilers" /><span>Masquer les avis signalés comme spoilers</span></label></div><div class="checkboxContainer checkboxContainer-withDescription"><label class="emby-checkbox-label"><input type="checkbox" is="emby-checkbox" data-cfg="ReviewsCollapsed" /><span>Section repliée par défaut</span></label></div><div class="selectContainer"><label class="selectLabel" for="f_ReviewsPosition">Position de la section</label><select is="emby-select" id="f_ReviewsPosition" class="emby-select-withcolor emby-select" data-cfg="ReviewsPosition"><option value="top">Avant le reste du contenu secondaire</option><option value="bottom">À la fin de la page</option></select><div class="fieldDescription">Sur la page de détail.</div></div><div class="inputContainer"><label class="inputLabel inputLabelUnfocused" for="f_ReviewsCacheDays">Conservation en cache (jours) (1 à 90)</label><input id="f_ReviewsCacheDays" type="number" is="emby-input" min="1" max="90" step="1" data-cfg="ReviewsCacheDays" data-int="1" /><div class="fieldDescription">Une critique n’est retéléchargée qu’après ce délai.</div></div>
+                    <div style="margin-bottom:1em;display:flex;gap:.5em;align-items:center;flex-wrap:wrap;">
+                        <button is="emby-button" type="button" id="btnTestReviews" class="raised emby-button"><span>Tester les clés</span></button>
+                        <button is="emby-button" type="button" id="btnClearReviews" class="raised emby-button"><span>Vider le cache des critiques</span></button>
+                        <span id="jrcReviewMsg" class="fieldDescription"></span>
+                    </div>
+                    <div class="fieldDescription" style="margin-top:1em;">Aperçu (avis d’exemple, dont un spoiler) :</div>
+                    <div id="jrcReviewPreview" style="margin-top:.3em;max-width:46em;"></div>
                 </div>
 
                 <div class="verticalSection">
                     <h3 class="sectionTitle">Avancé</h3>
-                    <div class="checkboxContainer checkboxContainer-withDescription"><label class="emby-checkbox-label"><input type="checkbox" is="emby-checkbox" data-cfg="HideDefaultStar" /><span>Masquer l’étoile de note TMDb d’origine de Jellyfin</span></label></div>
-                    <div class="checkboxContainer checkboxContainer-withDescription"><label class="emby-checkbox-label"><input type="checkbox" is="emby-checkbox" data-cfg="InjectScript" /><span>Injecter automatiquement le script dans index.html</span></label><div class="fieldDescription checkboxFieldDescription">À désactiver seulement si tu ajoutes toi-même &lt;script src=&quot;/JellyfinRatingsCache/client.js&quot;&gt;&lt;/script&gt; dans index.html.</div></div>
+                    <div class="checkboxContainer checkboxContainer-withDescription"><label class="emby-checkbox-label"><input type="checkbox" is="emby-checkbox" data-cfg="HideDefaultStar" /><span>Masquer l’étoile de note TMDb d’origine de Jellyfin</span></label></div><div class="checkboxContainer checkboxContainer-withDescription"><label class="emby-checkbox-label"><input type="checkbox" is="emby-checkbox" data-cfg="InjectScript" /><span>Injecter automatiquement le script dans index.html</span></label><div class="fieldDescription checkboxFieldDescription">À désactiver seulement si tu ajoutes toi-même &lt;script src=&quot;/JellyfinRatingsCache/client.js&quot;&gt;&lt;/script&gt; dans index.html. L’injection se fait en mémoire, sans modifier de fichier (coût mesuré : quelques microsecondes par chargement de page).</div></div>
                 </div>
 
                 <div>
@@ -113,9 +103,20 @@
             var CDN = 'https://cdn.jsdelivr.net/gh/Druidblack/jellyfin_ratings@main/logo/';
             var LOGO = { imdb: CDN + 'IMDb.png', rt: CDN + 'Rotten_Tomatoes.png', aud: CDN + 'Rotten_Tomatoes_positive_audience.png', tmdb: CDN + 'TMDB.png', lb: CDN + 'letterboxd.png' };
             var LABELS = { imdb: 'IMDb', rt: 'RT', aud: 'Pop', tmdb: 'TMDb', lb: 'LB' };
+            var NAMES = { imdb: 'IMDb', rt: 'Rotten Tomatoes (critiques)', aud: 'Popcorn (public RT)', tmdb: 'TMDB', lb: 'Letterboxd' };
             var SAMPLE = { imdb: '7.4', rt: '83', aud: '88', tmdb: '7.2', lb: '3.5' };
+            var ALL = ['imdb', 'rt', 'aud', 'tmdb', 'lb'];
+            var SEP = { dash: '-', endash: '\u2013', dot: '\u00B7', bullet: '\u2022', bar: '|', slash: '/' };
+            var STOP = { done: 'terminé', budget: 'budget atteint', account: 'quota du compte atteint', '429': 'limite MDBList (429)', time: 'durée maximale', error: 'erreurs réseau', key: 'clé refusée', nokey: 'clé absente', disabled: 'désactivé', nothing: 'rien à faire' };
 
             function $(sel) { return page.querySelector(sel); }
+            function el(tag, css, text) { var e = document.createElement(tag); if (css) e.style.cssText = css; if (text != null) e.textContent = text; return e; }
+            function clamp(v, mn, mx) { v = parseInt(v, 10); if (isNaN(v)) v = mn; return Math.max(mn, Math.min(mx, v)); }
+            function f(k) { return page.querySelector('[data-cfg="' + k + '"]'); }
+            function checked(k) { return f(k).checked; }
+            function intOf(k) { var e = f(k); return clamp(e.value, parseInt(e.min || '0', 10), parseInt(e.max || '100000', 10)); }
+            function clear(n) { while (n.firstChild) n.removeChild(n.firstChild); }
+
             function api(path, method, body) {
                 var opts = { method: method || 'GET', headers: { 'Authorization': 'MediaBrowser Token="' + ApiClient.accessToken() + '"' } };
                 if (body !== undefined) { opts.headers['Content-Type'] = 'application/json'; opts.body = JSON.stringify(body); }
@@ -127,23 +128,255 @@
             }
             function fmtBytes(n) { if (n == null) return '–'; if (n < 1024) return n + ' o'; if (n < 1048576) return (n / 1024).toFixed(1) + ' Ko'; return (n / 1048576).toFixed(2) + ' Mo'; }
             function fmtTime(s) { return s ? new Date(s * 1000).toLocaleString() : '–'; }
+            function dur(sec) {
+                sec = Math.max(0, Math.round(sec));
+                var h = Math.floor(sec / 3600), m = Math.floor((sec % 3600) / 60);
+                return h > 0 ? h + ' h ' + String(m).padStart(2, '0') + ' min' : (m > 0 ? m + ' min ' + String(sec % 60).padStart(2, '0') + ' s' : sec + ' s');
+            }
+            function rel(s) { if (!s) return ''; var d = s - Math.floor(Date.now() / 1000); return d >= 0 ? ' (dans ' + dur(d) + ')' : ' (il y a ' + dur(-d) + ')'; }
             function set(id, v) { var e = $('#st_' + id); if (e) e.textContent = v; }
+            function pct(n, t) { return t > 0 ? ' (' + Math.round(n * 1000 / t) / 10 + ' %)' : ''; }
 
+            /* ------------------------------------------------ limites */
+            function enforceLimits(input) {
+                if (input.getAttribute('data-int') && input.type !== 'range') {
+                    var mn = parseInt(input.min, 10), mx = parseInt(input.max, 10), n = parseInt(input.value, 10);
+                    if (!isNaN(n) && (n < mn || n > mx)) input.value = Math.max(mn, Math.min(mx, n));
+                }
+            }
+            function parseSources(csv) {
+                var out = [];
+                String(csv || '').split(',').forEach(function (s) { s = s.trim().toLowerCase(); if (ALL.indexOf(s) > -1 && out.indexOf(s) < 0) out.push(s); });
+                ALL.forEach(function (s) { if (out.indexOf(s) < 0) out.push(s); });
+                return out;
+            }
+            function normalizeLists() { ['DetailOrder', 'CardsSources', 'MediaBarSources'].forEach(function (k) { f(k).value = parseSources(f(k).value).join(','); }); }
+            function normalizeHour() {
+                var m = /^([01]?\d|2[0-3]):([0-5]\d)$/.exec(f('QuotaResetUtc').value.trim());
+                f('QuotaResetUtc').value = m ? String(parseInt(m[1], 10)).padStart(2, '0') + ':' + m[2] : '00:00';
+            }
+            function localHint() {
+                var p = f('QuotaResetUtc').value.split(':'), h = parseInt(p[0], 10), m = parseInt(p[1], 10);
+                var hint = $('#jrcResetHint');
+                if (!hint || isNaN(h) || isNaN(m)) return;
+                var d = new Date(); d.setUTCHours(h, m, 0, 0);
+                hint.textContent = '= ' + d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) + ' à l’heure locale de ce navigateur';
+            }
+
+            /* ------------------------------------------------ aperçus */
+            function ratingBox(order, size, show) {
+                var box = el('span', 'display:inline-flex;align-items:center;margin:0 .6em;');
+                order.forEach(function (k) {
+                    if (!show[k]) return;
+                    var i = el('img', 'height:' + size + 'em;margin-right:4px;'); i.src = LOGO[k]; box.appendChild(i);
+                    box.appendChild(el('span', 'margin-right:8px;', SAMPLE[k]));
+                });
+                return box;
+            }
+            function flag(code) { var i = el('img', 'height:.9em;margin-right:4px;border-radius:2px;'); i.src = 'https://flagcdn.com/w40/' + code + '.png'; i.onerror = function () { this.style.display = 'none'; }; return i; }
+            function renderDetailPreview() {
+                var p = $('#jrcDetailPreview'); clear(p);
+                if (!checked('DetailEnabled')) p.appendChild(el('div', 'opacity:.7;', 'Les notes sont désactivées sur la page de détail.'));
+                var size = intOf('DetailLogoSize') / 100;
+                var show = { imdb: checked('ShowImdb'), rt: checked('ShowRottenTomatoes'), aud: checked('ShowAudience'), tmdb: checked('ShowTmdb'), lb: checked('ShowLetterboxd') };
+                var order = parseSources(f('DetailOrder').value), pos = f('DetailPosition').value;
+                var line = el('div', 'display:flex;align-items:center;flex-wrap:wrap;gap:.2em;');
+                var rating = el('span', 'display:inline-flex;align-items:center;flex-wrap:wrap;');
+                if (checked('DetailEnabled')) {
+                    rating.appendChild(ratingBox(order, size, show));
+                    if (checked('ShowCertification')) {
+                        var pg = el('span', 'display:inline-flex;border-radius:4px;overflow:hidden;font-size:.82em;font-weight:700;line-height:1;background:#e65100;color:#fff;');
+                        pg.appendChild(el('span', 'padding:4px 7px;', '16+')); pg.appendChild(el('span', 'padding:4px 8px;background:rgba(0,0,0,.35);text-transform:uppercase;font-size:.85em;', 'Déconseillé'));
+                        rating.appendChild(pg);
+                    }
+                }
+                var parts = [el('span', 'margin-right:.8em;', '2008'), el('span', 'margin-right:.8em;', '1h 28m')];
+                if (pos === 'afterRuntime') parts.push(rating);
+                parts.push(el('span', 'border:1px solid rgba(255,255,255,.4);border-radius:.3em;padding:0 .4em;font-size:.75em;margin-right:.6em;', 'FR-12'));
+                if (pos === 'afterOfficialRating') parts.push(rating);
+                parts.push(el('span', 'opacity:.8;', 'Se terminera à 01:55'));
+                if (pos === 'end') parts.push(rating);
+                parts.forEach(function (n) { line.appendChild(n); });
+                p.appendChild(line);
+                var links = el('div', 'margin:.8em 0;display:flex;gap:.4em;flex-wrap:wrap;');
+                var names = checked('ReorderExternalLinks') ? ['IMDb', 'Rotten Tomatoes', 'TMDB', 'Letterboxd'] : ['IMDb', 'TMDB'];
+                names.forEach(function (n) { links.appendChild(el('span', 'background:rgba(255,255,255,.12);border-radius:.3em;padding:.1em .6em;', n)); });
+                if (!checked('ReorderExternalLinks')) links.appendChild(el('span', 'opacity:.6;font-size:.85em;align-self:center;', '(liens d’origine de Jellyfin)'));
+                p.appendChild(links);
+                var tbl = el('div', 'border:1px solid rgba(255,255,255,.2);border-radius:.5em;overflow:hidden;');
+                function row(label, fill) { var r = el('div', 'display:flex;justify-content:space-between;padding:.4em .8em;border-bottom:1px solid rgba(255,255,255,.12);'); r.appendChild(el('b', '', label)); var v = el('span', 'opacity:.85;display:inline-flex;align-items:center;gap:.5em;'); fill(v); r.appendChild(v); tbl.appendChild(r); }
+                if (checked('ShowCountries')) row('Pays', function (v) { var s = el('span', 'display:inline-flex;align-items:center;'); s.appendChild(flag('us')); s.appendChild(document.createTextNode('États-Unis')); v.appendChild(s); });
+                if (checked('ShowLanguages')) row('Langues', function (v) { [['gb', 'Anglais'], ['fr', 'Français']].forEach(function (l) { var s = el('span', 'display:inline-flex;align-items:center;'); s.appendChild(flag(l[0])); s.appendChild(document.createTextNode(l[1])); v.appendChild(s); }); });
+                row('Genres', function (v) { v.textContent = 'Action, Science-Fiction'; });
+                p.appendChild(tbl);
+                function tmdbLine(text, value) { var l = el('div', 'margin-top:.6em;display:flex;align-items:center;gap:.4em;font-size:.9em;'); l.appendChild(el('span', 'opacity:.7;', text)); var i = el('img', 'height:1.2em;'); i.src = LOGO.tmdb; l.appendChild(i); l.appendChild(el('span', '', value)); return l; }
+                if (checked('ShowSeasonEpisodeRatings')) p.appendChild(tmdbLine('Page d’une saison, chaque épisode : ', '8.0'));
+                if (checked('ShowEpisodePageRating')) p.appendChild(tmdbLine('Page d’un épisode : ', '8.0'));
+            }
+            function renderCardPreview() {
+                var p = $('#jrcCardPreview'); clear(p);
+                var enabled = checked('CardsEnabled');
+                var card = el('div', 'display:inline-block;width:12em;');
+                card.appendChild(el('div', 'width:12em;height:7em;border-radius:.6em;background:linear-gradient(135deg,#3b4558,#1d2635);border:1px solid rgba(255,255,255,.2);margin-bottom:.4em;'));
+                var sources = parseSources(f('CardsSources').value), max = clamp(f('CardsMaxRatings').value, 1, 3);
+                var logo = checked('CardsShowLogo'), size = intOf('CardsLogoSize') / 100, sep = SEP[f('CardsSeparator').value] || '-', after = f('CardsPosition').value === 'after';
+                var onFirst = f('CardsLine').value === 'first';
+                function textLine(text, withRating) {
+                    var l = el('div', 'white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:flex;align-items:center;');
+                    var t = el('span', (onFirst && withRating) ? 'font-weight:600;' : (withRating || onFirst ? '' : 'opacity:.75;'), text);
+                    if (!withRating || !enabled) { l.appendChild(t); return l; }
+                    var r = el('span', 'display:inline-flex;align-items:center;');
+                    sources.slice(0, max).forEach(function (k) {
+                        if (logo) { var i = el('img', 'height:' + size + 'em;margin-right:3px;'); i.src = LOGO[k]; r.appendChild(i); } else { r.appendChild(el('span', 'margin-right:3px;font-weight:600;opacity:.85;', LABELS[k])); }
+                        r.appendChild(el('span', 'margin-right:4px;', SAMPLE[k]));
+                    });
+                    var s = el('span', 'white-space:pre;', ' ' + sep + ' ');
+                    (after ? [t, s, r] : [r, s, t]).forEach(function (n) { l.appendChild(n); });
+                    return l;
+                }
+                card.appendChild(textLine('Titre du film', onFirst));
+                card.appendChild(textLine('2026', !onFirst));
+                p.appendChild(card);
+                if (!enabled) p.appendChild(el('div', 'opacity:.7;margin-top:.4em;', 'Les notes sont désactivées sur les cartes.'));
+                else if (!checked('CardsMovies') && !checked('CardsSeries') && !checked('CardsEpisodes')) p.appendChild(el('div', 'opacity:.7;margin-top:.4em;', 'Aucun type de carte n’est coché : aucune note ne sera affichée.'));
+            }
+            function renderMediaBarPreview() {
+                var p = $('#jrcMbPreview'); clear(p);
+                function rowOf(withOurs) {
+                    var row = el('div', 'display:flex;align-items:center;flex-wrap:wrap;gap:.5em;margin:.2em 0;');
+                    var dot = function () { return el('span', 'opacity:.6;', '\u25CF'); };
+                    var star = el('span', '', '\u2605 8.2');
+                    var parts = [el('span', '', '1979'), el('span', 'border:1px solid rgba(255,255,255,.4);border-radius:.3em;padding:0 .4em;font-size:.8em;', 'FR-12'), el('span', 'opacity:.85;', 'Se terminera à 04:28')];
+                    var ours = null;
+                    if (withOurs && checked('MediaBarEnabled')) {
+                        var sources = parseSources(f('MediaBarSources').value), max = clamp(f('MediaBarMaxRatings').value, 1, 5), logo = checked('MediaBarShowLogo'), size = intOf('MediaBarLogoSize') / 100;
+                        ours = el('span', 'display:inline-flex;align-items:center;gap:.6em;');
+                        sources.slice(0, max).forEach(function (k) {
+                            var it = el('span', 'display:inline-flex;align-items:center;');
+                            if (logo) { var i = el('img', 'height:' + size + 'em;margin-right:3px;'); i.src = LOGO[k]; it.appendChild(i); } else it.appendChild(el('span', 'margin-right:3px;font-weight:600;opacity:.85;', LABELS[k]));
+                            it.appendChild(el('span', '', SAMPLE[k])); ours.appendChild(it);
+                        });
+                    }
+                    var items = [];
+                    var hide = ours && checked('MediaBarHideStar'), pos = f('MediaBarPosition').value;
+                    if (ours && pos === 'start') items.push(ours);
+                    if (!hide) items.push(star);
+                    items.push(parts[0]); if (ours && pos === 'afterDate') items.push(ours);
+                    items.push(parts[1]); if (ours && pos === 'afterAge') items.push(ours);
+                    items.push(parts[2]); if (ours && pos === 'end') items.push(ours);
+                    items.forEach(function (n, i) { if (i > 0) row.appendChild(dot()); row.appendChild(n); });
+                    return row;
+                }
+                p.appendChild(el('div', 'opacity:.65;font-size:.85em;', 'Sans le plugin :')); p.appendChild(rowOf(false));
+                p.appendChild(el('div', 'opacity:.65;font-size:.85em;margin-top:.6em;', checked('MediaBarEnabled') ? 'Avec Ratings Cache :' : 'Désactivé (aucune modification de la Media Bar) :')); p.appendChild(rowOf(true));
+            }
+            var SAMPLE_REVIEWS = [
+                { s: 'tmdb', a: 'cinéphile42', r: 8, d: '2024-05-12', l: 0, t: 'Un film d’une rare intensité, porté par une mise en scène précise et une bande originale mémorable. '.repeat(6) },
+                { s: 'tmdb', a: 'marc_b', r: 6, d: '2024-02-03', l: 0, t: 'Efficace mais un peu long.' },
+                { s: 'tmdb', a: 'lea', d: '2023-11-20', l: 0, t: 'À voir au cinéma.' },
+                { s: 'trakt', a: 'neo', r: 9, d: '2024-04-01', l: 12, t: 'Culte. Je le revois chaque année.' },
+                { s: 'trakt', a: 'trinity', d: '2024-04-02', l: 30, sp: true, t: 'La scène finale change tout, ne lisez pas avant d’avoir vu le film.' }
+            ];
+            function renderReviewPreview() {
+                var p = $('#jrcReviewPreview'); clear(p);
+                if (!checked('ReviewsEnabled')) { p.appendChild(el('div', 'opacity:.7;', 'Les critiques sont désactivées.')); return; }
+                var useT = checked('ReviewsUseTmdb'), useK = checked('ReviewsUseTrakt');
+                if (!useT && !useK) { p.appendChild(el('div', 'opacity:.7;', 'Aucune source cochée.')); return; }
+                var per = intOf('ReviewsPerSource'), total = intOf('ReviewsTotalMax'), sort = f('ReviewsSort').value, grouping = f('ReviewsGrouping').value, maxc = intOf('ReviewsMaxChars');
+                var hide = checked('ReviewsHideSpoilers');
+                var ts = function (r) { var t = Date.parse(r.d || ''); return isNaN(t) ? 0 : t; };
+                var cmp = function (a, b) { if (sort === 'recent') return ts(b) - ts(a); if (sort === 'rating') return ((b.r == null ? -1 : b.r) - (a.r == null ? -1 : a.r)) || (ts(b) - ts(a)); return ((b.l || 0) - (a.l || 0)) || (ts(b) - ts(a)); };
+                var groups = [];
+                ['tmdb', 'trakt'].forEach(function (s) {
+                    if ((s === 'tmdb' && !useT) || (s === 'trakt' && !useK)) return;
+                    var items = SAMPLE_REVIEWS.filter(function (r) { return r.s === s && !(hide && r.sp); }).sort(cmp).slice(0, per);
+                    groups.push({ s: s, items: items });
+                });
+                var box = el('div', ''); var shown = 0;
+                function card(r) {
+                    var c = el('div', 'border:1px solid rgba(128,128,128,.35);background:rgba(128,128,128,.08);border-radius:.7em;padding:.7em .95em;margin:.5em 0;');
+                    var meta = el('div', 'display:flex;flex-wrap:wrap;gap:.2em .7em;font-size:.9em;margin-bottom:.4em;');
+                    var chip = 'border:1px solid rgba(128,128,128,.5);border-radius:.4em;padding:0 .45em;font-size:.85em;';
+                    if (checked('ReviewsShowAuthor')) meta.appendChild(el('b', '', r.a));
+                    if (checked('ReviewsShowRating') && r.r != null) meta.appendChild(el('span', chip, '\u2605 ' + r.r + '/10'));
+                    if (checked('ReviewsShowDate')) meta.appendChild(el('span', '', new Date(r.d).toLocaleDateString()));
+                    if (checked('ReviewsShowSource')) meta.appendChild(el('span', chip, r.s === 'tmdb' ? 'TMDb' : 'Trakt'));
+                    if (checked('ReviewsShowLikes') && r.l) meta.appendChild(el('span', '', '\u2665 ' + r.l));
+                    if (meta.childNodes.length) c.appendChild(meta);
+                    var cut = r.t.length > maxc;
+                    var t = el('div', 'white-space:pre-line;line-height:1.45;', cut ? r.t.slice(0, maxc).replace(/\s+\S*$/, '') + '\u2026' : r.t); c.appendChild(t);
+                    if (cut) c.appendChild(el('span', 'opacity:.75;text-decoration:underline;', 'Lire la suite'));
+                    return c;
+                }
+                if (grouping === 'bySource') {
+                    groups.forEach(function (g) {
+                        var room = Math.max(0, total - shown), its = g.items.slice(0, room); shown += its.length;
+                        if (its.length) { box.appendChild(el('div', 'font-weight:600;opacity:.85;margin:.8em 0 .2em;', (g.s === 'tmdb' ? 'TMDb' : 'Trakt') + ' (' + its.length + ')')); its.forEach(function (r) { box.appendChild(card(r)); }); }
+                    });
+                } else {
+                    var flat = []; groups.forEach(function (g) { flat = flat.concat(g.items); });
+                    flat.sort(cmp).slice(0, total).forEach(function (r) { box.appendChild(card(r)); shown++; });
+                }
+                var det = el('details', ''); if (!checked('ReviewsCollapsed')) det.open = true;
+                det.appendChild(el('summary', 'font-size:1.3rem;font-weight:600;cursor:pointer;', 'Critiques (' + shown + ')')); det.appendChild(box);
+                p.appendChild(det);
+                p.appendChild(el('div', 'opacity:.65;font-size:.85em;margin-top:.4em;', 'Position : ' + (f('ReviewsPosition').value === 'top' ? 'avant le reste du contenu secondaire (distribution, titres similaires…)' : 'à la fin de la page') + '.'));
+            }
+            function updatePreviews() {
+                ['DetailLogoSize', 'CardsLogoSize', 'MediaBarLogoSize'].forEach(function (k) { var v = $('#v_' + k); if (v) v.textContent = intOf(k); });
+                renderDetailPreview(); renderCardPreview(); renderMediaBarPreview(); renderReviewPreview(); localHint();
+            }
+
+            /* ------------------------------------------------ état détaillé */
+            function cell(text, css, tag) { var c = el(tag || 'td', 'padding:.2em .8em .2em 0;' + (css || ''), text); return c; }
+            function renderStatus(s) {
+                var q = s.quota, pr = s.processing, lib = s.library, cov = s.coverage, files = s.files;
+                set('running', s.running ? 'oui… ' + (s.progress || '') : 'non');
+                var last = (s.runs && s.runs[0]);
+                set('lastRun', last ? fmtTime(last.at) + ' · ' + (last.ms / 1000).toFixed(1) + ' s · ' + last.fetched + ' notes récupérées · fin : ' + (STOP[last.stop] || last.stop) : 'jamais');
+                set('nextRun', s.nextRun ? fmtTime(s.nextRun) + rel(s.nextRun) + (s.nextRunReason === 'limit' ? ' — reprise exacte après la limite atteinte' : ' — fréquence normale (nouveaux films)') : '–');
+                set('version', s.version || '–');
+                set('account', q.accountUsed != null ? q.accountUsed + ' / ' + q.accountLimit + ' requêtes (vérifié à ' + new Date(q.accountChecked * 1000).toLocaleTimeString() + ') — partagé avec toutes tes applications MDBList' : (q.keySet ? 'pas encore vérifié' : 'clé API manquante'));
+                set('plugin', q.pluginUsed + ' / ' + q.pluginMax + ' requêtes (le jour du quota commence à ' + q.resetUtc + ' UTC)');
+                set('reset', fmtTime(q.nextReset) + rel(q.nextReset) + ' — réglé sur ' + q.resetUtc + ' UTC');
+                set('lastLimit', q.lastLimitAt ? fmtTime(q.lastLimitAt) + ' — ' + ({ budget: 'budget du plugin atteint', account: 'budget atteint sur le compte MDBList', '429': 'MDBList a répondu 429' }[q.lastLimitReason] || q.lastLimitReason) : 'jamais');
+                set('resume', q.resumeAt ? fmtTime(q.resumeAt) + rel(q.resumeAt) : (q.lastLimitAt ? 'aucune limite en cours' : '–'));
+                set('movies', lib.movies); set('shows', lib.shows); set('items', lib.items); set('withTmdb', lib.withTmdb); set('withoutTmdb', lib.withoutTmdb); set('unique', lib.unique);
+                set('processed', pr.processed + ' / ' + lib.unique + ' — dont ' + pr.withData + ' avec notes et ' + pr.empty + ' sans note (inconnus de MDBList, nouvel essai plus tard)');
+                set('missing', pr.missing); set('stale', pr.stale); set('remaining', pr.remaining + ' (' + pr.cachedTotal + ' notes en cache au total)');
+                var done = lib.unique > 0 ? Math.round(pr.processed * 100 / lib.unique) : 0;
+                $('#st_bar').style.width = done + '%'; $('#st_barText').textContent = done + ' % des titres traités';
+
+                var t = $('#tblCoverage'); clear(t);
+                var head = el('tr'); ['Source', 'Titres', '% des titres notés'].forEach(function (h) { head.appendChild(cell(h, 'font-weight:700;opacity:.8;', 'th')); }); t.appendChild(head);
+                ALL.forEach(function (k, i) { var r = el('tr'); r.appendChild(cell(NAMES[k])); r.appendChild(cell(String(cov.perSource[i]), 'font-weight:600;')); r.appendChild(cell(pct(cov.perSource[i], pr.withData).replace(/[() ]/g, '') || '–')); t.appendChild(r); });
+                [['Les 5 notes à la fois', cov.allFive], ['Certification d’âge', cov.age], ['Pays', cov.countries], ['Langues', cov.languages], ['Lien Rotten Tomatoes', cov.rtUrl], ['Badge Certified Fresh', cov.certified], ['Badge Verified Hot', cov.verified]].forEach(function (x) {
+                    var r = el('tr'); r.appendChild(cell(x[0])); r.appendChild(cell(String(x[1]), 'font-weight:600;')); r.appendChild(cell(pct(x[1], pr.withData).replace(/[() ]/g, '') || '–')); t.appendChild(r);
+                });
+
+                var o = $('#tblOverlap'); clear(o);
+                var oh = el('tr'); oh.appendChild(cell('', '', 'th')); ALL.forEach(function (k) { oh.appendChild(cell(LABELS[k], 'font-weight:700;opacity:.8;text-align:right;', 'th')); }); o.appendChild(oh);
+                var maxv = Math.max.apply(null, [1].concat(cov.perSource));
+                ALL.forEach(function (k, i) {
+                    var r = el('tr'); r.appendChild(cell(LABELS[k], 'font-weight:700;opacity:.8;', 'th'));
+                    ALL.forEach(function (k2, j) { var v = cov.overlap[i][j]; r.appendChild(cell(String(v), 'text-align:right;background:rgba(76,175,80,' + (0.05 + 0.4 * v / maxv).toFixed(2) + ');' + (i === j ? 'font-weight:700;' : ''))); });
+                    o.appendChild(r);
+                });
+
+                var rt = $('#tblRuns'); clear(rt);
+                var rh = el('tr'); ['Début', 'Durée', 'Notes récupérées', 'Sans note', 'Erreurs', 'Restant', 'Fin'].forEach(function (h) { rh.appendChild(cell(h, 'font-weight:700;opacity:.8;', 'th')); }); rt.appendChild(rh);
+                (s.runs || []).forEach(function (r) {
+                    var tr = el('tr'); [fmtTime(r.at), (r.ms / 1000).toFixed(1) + ' s', r.fetched, r.empty, r.errors, r.remaining, STOP[r.stop] || r.stop].forEach(function (v) { tr.appendChild(cell(String(v))); }); rt.appendChild(tr);
+                });
+                if (!(s.runs || []).length) { var er = el('tr'); er.appendChild(cell('Aucun passage enregistré.')); rt.appendChild(er); }
+
+                set('payload', fmtBytes(files.payloadBytes) + ' (' + fmtBytes(files.payloadGzipBytes) + ' compressé) · ' + files.payloadItems + ' titres');
+                set('cacheFile', fmtBytes(files.cacheFileBytes));
+                set('reviewsCache', files.reviewsCount + ' titres · ' + fmtBytes(files.reviewsFileBytes) + (s.reviews.enabled ? '' : ' (critiques désactivées)'));
+                set('injection', s.injection.count + ' depuis le démarrage du serveur · temps moyen ' + s.injection.avgMs + ' ms (max ' + s.injection.maxMs + ' ms)' + (s.injection.last ? ' · dernier : ' + fmtTime(s.injection.last) : ''));
+            }
             function loadStatus() {
-                api('status').then(function (s) {
-                    set('items', s.items); set('itemsWithTmdb', s.itemsWithTmdb);
-                    set('ratingsWithData', s.ratingsWithData); set('withLetterboxd', s.withLetterboxd); set('withImdb', s.withImdb);
-                    set('toFetch', s.keySet ? s.toFetch : 'clé API manquante');
-                    set('budget', s.budgetUsed + ' / ' + s.budgetMax);
-                    set('blocked', s.blockedUntil ? 'pause jusqu’à ' + fmtTime(s.blockedUntil) : 'aucune');
-                    set('payload', fmtBytes(s.payloadBytes) + ' (' + fmtBytes(s.payloadGzipBytes) + ' compressé) · ' + s.payloadItems + ' titres');
-                    set('cacheFile', fmtBytes(s.cacheFileBytes));
-                    set('lastSync', s.lastSync ? fmtTime(s.lastSync) + ' (' + (s.lastSyncMs / 1000).toFixed(1) + ' s)' : 'jamais');
-                    set('nextRun', s.nextRun ? fmtTime(s.nextRun) : '–');
-                    set('injections', s.injections + (s.lastInjection ? ' (dernière : ' + fmtTime(s.lastInjection) + ')' : ''));
-                    set('version', s.version || '–');
-                    $('#jrcRunning').textContent = s.running ? 'Passage en cours… ' + (s.progress || '') : '';
-                }).catch(function (e) { $('#jrcRunning').textContent = 'État indisponible : ' + e.message; });
+                api('status').then(renderStatus).catch(function (e) { set('running', 'état indisponible : ' + e.message); });
             }
             function loadLogs() {
                 api('logs?lines=300').then(function (t) {
@@ -157,43 +390,29 @@
                     .catch(function (e) { $('#jrcActionMsg').textContent = 'Erreur : ' + e.message; });
             }
 
-            function updatePreview() {
-                var p = $('#jrcPreview'); while (p.firstChild) p.removeChild(p.firstChild);
-                var sources = ($('#f_CardsSources').value || 'lb').split(',').map(function (s) { return s.trim().toLowerCase(); }).filter(function (s) { return LOGO[s]; });
-                if (!sources.length) sources = ['lb'];
-                var max = Math.max(1, Math.min(3, parseInt($('#f_CardsMaxRatings').value, 10) || 1));
-                var logo = $('[data-cfg="CardsShowLogo"]').checked;
-                var size = (parseInt($('#f_CardsLogoSize').value, 10) || 120) / 100;
-                var sep = $('#f_CardsSeparator').value || '-';
-                var after = $('#f_CardsPosition').value === 'after';
-                var line = $('#f_CardsLine').value === 'first' ? 'Titre du film' : '2026';
-                var rating = document.createElement('span'); rating.style.cssText = 'display:inline-flex;align-items:center;';
-                sources.slice(0, max).forEach(function (k) {
-                    if (logo) { var i = document.createElement('img'); i.src = LOGO[k]; i.style.cssText = 'height:' + size + 'em;margin-right:3px;'; rating.appendChild(i); }
-                    else { var l = document.createElement('span'); l.textContent = LABELS[k]; l.style.cssText = 'margin-right:3px;font-weight:600;opacity:.85;'; rating.appendChild(l); }
-                    var v = document.createElement('span'); v.textContent = SAMPLE[k]; v.style.marginRight = '4px'; rating.appendChild(v);
-                });
-                var sp = document.createElement('span'); sp.textContent = ' ' + sep + ' '; sp.style.whiteSpace = 'pre';
-                var tx = document.createElement('span'); tx.textContent = line;
-                [after ? tx : rating, sp, after ? rating : tx].forEach(function (n) { p.appendChild(n); });
-            }
-
             function fill(config) {
-                page.querySelectorAll('[data-cfg]').forEach(function (el) {
-                    var v = config[el.getAttribute('data-cfg')];
-                    if (el.type === 'checkbox') el.checked = !!v; else if (v != null) el.value = v;
+                page.querySelectorAll('[data-cfg]').forEach(function (e) {
+                    var v = config[e.getAttribute('data-cfg')];
+                    if (e.type === 'checkbox') e.checked = !!v; else if (v != null) e.value = v;
                 });
-                updatePreview();
+                if (!SEP[f('CardsSeparator').value]) f('CardsSeparator').value = 'dash';
+                normalizeLists(); normalizeHour(); updatePreviews();
             }
             function collect(config) {
-                page.querySelectorAll('[data-cfg]').forEach(function (el) {
-                    var k = el.getAttribute('data-cfg');
-                    if (el.type === 'checkbox') config[k] = el.checked;
-                    else if (el.getAttribute('data-int')) {
-                        var n = parseInt(el.value, 10);
-                        if (!isNaN(n)) config[k] = Math.max(parseInt(el.min, 10), Math.min(parseInt(el.max, 10), n));
-                    } else config[k] = el.value;
+                normalizeLists(); normalizeHour();
+                page.querySelectorAll('[data-cfg]').forEach(function (e) {
+                    var k = e.getAttribute('data-cfg');
+                    if (e.type === 'checkbox') config[k] = e.checked;
+                    else if (e.getAttribute('data-int')) {
+                        var n = parseInt(e.value, 10);
+                        config[k] = clamp(isNaN(n) ? e.min : n, parseInt(e.min, 10), parseInt(e.max, 10));
+                    } else if (e.getAttribute('data-numeric')) config[k] = parseInt(e.value, 10) || 1;
+                    else config[k] = e.value;
                 });
+                config.CardsMaxRatings = clamp(config.CardsMaxRatings, 1, 3);
+                config.MediaBarMaxRatings = clamp(config.MediaBarMaxRatings, 1, 5);
+                ['MdbListApiKey', 'TraktClientId'].forEach(function (k) { config[k] = String(config[k] || '').replace(/\s+/g, '').substring(0, 128); });
+                config.TmdbApiKey = String(config.TmdbApiKey || '').replace(/\s+/g, '').substring(0, 400);
                 return config;
             }
 
@@ -206,17 +425,36 @@
             });
             page.addEventListener('pagehide', function () { clearInterval(timer); });
 
-            page.querySelectorAll('input, select').forEach(function (el) { el.addEventListener('input', updatePreview); el.addEventListener('change', updatePreview); });
+            page.querySelectorAll('[data-cfg]').forEach(function (e) {
+                e.addEventListener('input', function () { updatePreviews(); });
+                e.addEventListener('change', function () { enforceLimits(e); if (/Order|Sources/.test(e.id)) normalizeLists(); if (e.id === 'f_QuotaResetUtc') normalizeHour(); updatePreviews(); });
+                e.addEventListener('blur', function () { enforceLimits(e); if (e.id === 'f_QuotaResetUtc') normalizeHour(); updatePreviews(); });
+            });
 
-            $('#btnSync').addEventListener('click', function () { action('sync', 'Synchronisation lancée.'); });
+            $('#btnSync').addEventListener('click', function () { action('sync', 'Synchronisation lancée (la limite en attente est levée).'); });
             $('#btnRebuild').addEventListener('click', function () { action('rebuild', 'Fichier reconstruit.'); });
             $('#btnClearCache').addEventListener('click', function () { action('clear-cache', 'Cache vidé : les notes sont récupérées à nouveau.', 'Vider le cache ? Les notes seront récupérées à nouveau (dans la limite du budget quotidien).'); });
+            $('#btnQuota').addEventListener('click', function () {
+                $('#jrcQuotaMsg').textContent = 'Vérification…';
+                api('quota-check', 'POST').then(function (r) { $('#jrcQuotaMsg').textContent = (r.ok ? '✔ ' : '✖ ') + r.message; loadStatus(); loadLogs(); })
+                    .catch(function (e) { $('#jrcQuotaMsg').textContent = 'Erreur : ' + e.message; });
+            });
             $('#btnLogsRefresh').addEventListener('click', loadLogs);
             $('#btnLogsClear').addEventListener('click', function () { api('clear-logs', 'POST').then(loadLogs); });
             $('#btnTestKey').addEventListener('click', function () {
                 $('#jrcKeyMsg').textContent = 'Test en cours…';
-                api('test-key', 'POST', { key: $('#f_MdbListApiKey').value }).then(function (r) { $('#jrcKeyMsg').textContent = (r.ok ? '✔ ' : '✖ ') + r.message; })
+                api('test-key', 'POST', { key: $('#f_MdbListApiKey').value.replace(/\s+/g, '') }).then(function (r) { $('#jrcKeyMsg').textContent = (r.ok ? '✔ ' : '✖ ') + r.message; })
                     .catch(function (e) { $('#jrcKeyMsg').textContent = 'Erreur : ' + e.message; });
+            });
+            $('#btnTestReviews').addEventListener('click', function () {
+                $('#jrcReviewMsg').textContent = 'Test en cours…';
+                api('test-reviews-keys', 'POST', { tmdbKey: $('#f_TmdbApiKey').value.replace(/\s+/g, ''), traktId: $('#f_TraktClientId').value.replace(/\s+/g, '') }).then(function (r) {
+                    var keys = Object.keys(r); $('#jrcReviewMsg').textContent = keys.length ? keys.map(function (k) { return (k === 'tmdb' ? 'TMDb' : 'Trakt') + ' : ' + r[k]; }).join(' — ') : 'Aucune clé renseignée.';
+                }).catch(function (e) { $('#jrcReviewMsg').textContent = 'Erreur : ' + e.message; });
+            });
+            $('#btnClearReviews').addEventListener('click', function () {
+                if (!confirm('Vider le cache des critiques ? Elles seront retéléchargées à la prochaine consultation de chaque titre.')) return;
+                api('clear-reviews', 'POST').then(function () { $('#jrcReviewMsg').textContent = 'Cache des critiques vidé.'; loadStatus(); });
             });
 
             $('#JellyfinRatingsCacheForm').addEventListener('submit', function (e) {

@@ -15,6 +15,7 @@ public class PluginServiceRegistrator : IPluginServiceRegistrator
         serviceCollection.AddSingleton<PluginLog>();
         serviceCollection.AddSingleton<RatingsStore>();
         serviceCollection.AddSingleton<PayloadService>();
+        serviceCollection.AddSingleton<ReviewsService>();
         serviceCollection.AddSingleton<InjectionState>();
         serviceCollection.AddSingleton<RatingsSyncService>();
         serviceCollection.AddHostedService(sp => sp.GetRequiredService<RatingsSyncService>());

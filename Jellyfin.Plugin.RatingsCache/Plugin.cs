@@ -14,6 +14,25 @@ public class Plugin : BasePlugin<PluginConfiguration>, IHasWebPages
         : base(applicationPaths, xmlSerializer)
     {
         Instance = this;
+        try
+        {
+            Configuration.Sanitize();
+        }
+        catch (Exception)
+        {
+            // configuration illisible : les valeurs par défaut s'appliquent
+        }
+    }
+
+    /// <summary>Toute configuration enregistrée depuis le tableau de bord est ramenée dans les limites.</summary>
+    public override void UpdateConfiguration(BasePluginConfiguration configuration)
+    {
+        if (configuration is PluginConfiguration c)
+        {
+            c.Sanitize();
+        }
+
+        base.UpdateConfiguration(configuration);
     }
 
     public static Plugin? Instance { get; private set; }

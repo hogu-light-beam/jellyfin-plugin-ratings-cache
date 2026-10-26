@@ -67,7 +67,7 @@ public sealed class PayloadService
             links = c.ReorderExternalLinks,
             seasonEpisodes = c.ShowSeasonEpisodeRatings,
             episodePage = c.ShowEpisodePageRating,
-            logoSize = PluginConfiguration.Clamp(c.DetailLogoSize, 50, 400),
+            logoSize = PluginConfiguration.Clamp(c.DetailLogoSize, PluginConfiguration.DetailLogoMin, PluginConfiguration.DetailLogoMax),
             position = PluginConfiguration.Pick(c.DetailPosition, "afterOfficialRating", "afterOfficialRating", "afterRuntime", "end")
         };
         var cards = new
@@ -78,13 +78,42 @@ public sealed class PayloadService
             episodes = c.CardsEpisodes,
             line = PluginConfiguration.Pick(c.CardsLine, "secondary", "secondary", "first"),
             sources = PluginConfiguration.ParseSources(c.CardsSources),
-            max = PluginConfiguration.Clamp(c.CardsMaxRatings, 1, 3),
-            sep = PluginConfiguration.Pick(c.CardsSeparator, "-", "·", "-", "–", "•", "|"),
+            max = PluginConfiguration.Clamp(c.CardsMaxRatings, PluginConfiguration.CardsMaxRatingsMin, PluginConfiguration.CardsMaxRatingsMax),
+            sep = PluginConfiguration.SeparatorChar(c.CardsSeparator),
             logo = c.CardsShowLogo,
-            logoSize = PluginConfiguration.Clamp(c.CardsLogoSize, 50, 300),
+            logoSize = PluginConfiguration.Clamp(c.CardsLogoSize, PluginConfiguration.CardsLogoMin, PluginConfiguration.CardsLogoMax),
             position = PluginConfiguration.Pick(c.CardsPosition, "before", "before", "after")
         };
-        return JsonSerializer.Serialize(new { detail, cards, hideStar = c.HideDefaultStar }, CamelOptions);
+        var mediaBar = new
+        {
+            enabled = c.MediaBarEnabled,
+            sources = PluginConfiguration.ParseSources(c.MediaBarSources),
+            max = PluginConfiguration.Clamp(c.MediaBarMaxRatings, PluginConfiguration.MediaBarMaxRatingsMin, PluginConfiguration.MediaBarMaxRatingsMax),
+            logo = c.MediaBarShowLogo,
+            logoSize = PluginConfiguration.Clamp(c.MediaBarLogoSize, PluginConfiguration.MediaBarLogoMin, PluginConfiguration.MediaBarLogoMax),
+            position = PluginConfiguration.Pick(c.MediaBarPosition, "start", "start", "afterDate", "afterAge", "end"),
+            hideStar = c.MediaBarHideStar
+        };
+        var useTmdb = c.ReviewsUseTmdb && !string.IsNullOrWhiteSpace(c.TmdbApiKey);
+        var useTrakt = c.ReviewsUseTrakt && !string.IsNullOrWhiteSpace(c.TraktClientId);
+        var reviews = new
+        {
+            enabled = c.ReviewsEnabled && (useTmdb || useTrakt),
+            perSource = PluginConfiguration.Clamp(c.ReviewsPerSource, PluginConfiguration.ReviewsPerSourceMin, PluginConfiguration.ReviewsPerSourceMax),
+            totalMax = PluginConfiguration.Clamp(c.ReviewsTotalMax, PluginConfiguration.ReviewsTotalLow, PluginConfiguration.ReviewsTotalHigh),
+            grouping = PluginConfiguration.Pick(c.ReviewsGrouping, "mixed", "mixed", "bySource"),
+            sort = PluginConfiguration.Pick(c.ReviewsSort, "likes", "likes", "recent", "rating"),
+            maxChars = PluginConfiguration.Clamp(c.ReviewsMaxChars, PluginConfiguration.ReviewsCharsMin, PluginConfiguration.ReviewsCharsMax),
+            author = c.ReviewsShowAuthor,
+            date = c.ReviewsShowDate,
+            rating = c.ReviewsShowRating,
+            source = c.ReviewsShowSource,
+            likes = c.ReviewsShowLikes,
+            hideSpoilers = c.ReviewsHideSpoilers,
+            collapsed = c.ReviewsCollapsed,
+            position = PluginConfiguration.Pick(c.ReviewsPosition, "top", "top", "bottom")
+        };
+        return JsonSerializer.Serialize(new { detail, cards, mediaBar, reviews, hideStar = c.HideDefaultStar }, CamelOptions);
     }
 
     public Payload Get()

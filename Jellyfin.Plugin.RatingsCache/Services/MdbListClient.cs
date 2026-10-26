@@ -28,6 +28,14 @@ public sealed class MdbResult
     public int RetryAfterSeconds { get; set; } = 3600;
 }
 
+/// <summary>Quota réel du compte MDBList (partagé par toutes les clés et applications du compte).</summary>
+public sealed class UserInfo
+{
+    public int Limit { get; set; }
+
+    public int Count { get; set; }
+}
+
 /// <summary>Client MDBList (https://api.mdblist.com).</summary>
 public static class MdbListClient
 {
@@ -63,6 +71,34 @@ public static class MdbListClient
 
         resp.EnsureSuccessStatusCode();
         return Parse(body);
+    }
+
+    /// <summary>Lit la limite quotidienne et le nombre de requêtes déjà utilisées sur le compte (GET /user).</summary>
+    public static async Task<UserInfo?> GetUserAsync(string apiKey, string baseUrl, CancellationToken ct)
+    {
+        using var resp = await Http.GetAsync($"{baseUrl.TrimEnd('/')}/user?apikey={Uri.EscapeDataString(apiKey)}", ct).ConfigureAwait(false);
+        if (resp.StatusCode == HttpStatusCode.Unauthorized || resp.StatusCode == HttpStatusCode.Forbidden)
+        {
+            return null;
+        }
+
+        resp.EnsureSuccessStatusCode();
+        return ParseUser(await resp.Content.ReadAsStringAsync(ct).ConfigureAwait(false));
+    }
+
+    /// <summary>Public pour les tests.</summary>
+    public static UserInfo? ParseUser(string json)
+    {
+        using var doc = JsonDocument.Parse(json);
+        var root = doc.RootElement;
+        if (root.ValueKind != JsonValueKind.Object ||
+            !root.TryGetProperty("api_requests", out var lim) || !lim.TryGetInt32(out var limit) ||
+            !root.TryGetProperty("api_requests_count", out var cnt) || !cnt.TryGetInt32(out var count))
+        {
+            return null;
+        }
+
+        return new UserInfo { Limit = limit, Count = count };
     }
 
     private static int ReadRetryAfter(string body)

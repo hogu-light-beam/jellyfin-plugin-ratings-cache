@@ -7,9 +7,11 @@ using MediaBrowser.Common.Configuration;
 
 namespace Jellyfin.Plugin.RatingsCache.Services;
 
-/// <summary>Cache persistant (cache.json) : bibliothèque, notes, budget MDBList quotidien, circuit breaker.</summary>
+/// <summary>Cache persistant (cache.json) : bibliothèque, notes, budget quotidien, limites atteintes, historique des passages.</summary>
 public sealed class RatingsStore
 {
+    private const int MaxRuns = 12;
+
     private readonly object _lock = new();
     private readonly string _file;
     private readonly PluginLog _log;
@@ -17,9 +19,15 @@ public sealed class RatingsStore
     private Dictionary<string, RatingRec> _ratings = new();
     private string _budgetDay = string.Empty;
     private int _budgetCount;
-    private long _blockedUntil;
     private long _lastSync;
     private long _lastSyncMs;
+    private long _lastLimitAt;
+    private string _lastLimitReason = string.Empty;
+    private long _resumeAt;
+    private int _accountLimit;
+    private int _accountUsed;
+    private long _accountChecked;
+    private List<RunInfo> _runs = new();
 
     public RatingsStore(IApplicationPaths paths, PluginLog log)
     {
@@ -47,11 +55,23 @@ public sealed class RatingsStore
 
         public int BudgetCount { get; set; }
 
-        public long BlockedUntil { get; set; }
-
         public long LastSync { get; set; }
 
         public long LastSyncMs { get; set; }
+
+        public long LastLimitAt { get; set; }
+
+        public string LastLimitReason { get; set; } = string.Empty;
+
+        public long ResumeAt { get; set; }
+
+        public int AccountLimit { get; set; }
+
+        public int AccountUsed { get; set; }
+
+        public long AccountChecked { get; set; }
+
+        public List<RunInfo> Runs { get; set; } = new();
     }
 
     private void Load()
@@ -73,9 +93,15 @@ public sealed class RatingsStore
             _ratings = c.Ratings ?? new();
             _budgetDay = c.BudgetDay;
             _budgetCount = c.BudgetCount;
-            _blockedUntil = c.BlockedUntil;
             _lastSync = c.LastSync;
             _lastSyncMs = c.LastSyncMs;
+            _lastLimitAt = c.LastLimitAt;
+            _lastLimitReason = c.LastLimitReason ?? string.Empty;
+            _resumeAt = c.ResumeAt;
+            _accountLimit = c.AccountLimit;
+            _accountUsed = c.AccountUsed;
+            _accountChecked = c.AccountChecked;
+            _runs = c.Runs ?? new();
             Revision++;
             _log.Info($"Cache chargé : {_items.Count} éléments, {_ratings.Count} notes en cache.");
         }
@@ -97,9 +123,15 @@ public sealed class RatingsStore
                     Ratings = _ratings,
                     BudgetDay = _budgetDay,
                     BudgetCount = _budgetCount,
-                    BlockedUntil = _blockedUntil,
                     LastSync = _lastSync,
-                    LastSyncMs = _lastSyncMs
+                    LastSyncMs = _lastSyncMs,
+                    LastLimitAt = _lastLimitAt,
+                    LastLimitReason = _lastLimitReason,
+                    ResumeAt = _resumeAt,
+                    AccountLimit = _accountLimit,
+                    AccountUsed = _accountUsed,
+                    AccountChecked = _accountChecked,
+                    Runs = _runs
                 };
                 var tmp = _file + ".tmp";
                 File.WriteAllText(tmp, JsonSerializer.Serialize(c));
@@ -118,6 +150,16 @@ public sealed class RatingsStore
         {
             _items = items;
             Revision++;
+        }
+    }
+
+    public bool TryGetItem(string id, out ItemRec item)
+    {
+        lock (_lock)
+        {
+            var found = _items.TryGetValue(id, out var it);
+            item = it ?? new ItemRec();
+            return found;
         }
     }
 
@@ -154,27 +196,25 @@ public sealed class RatingsStore
 
     public long LastSyncMs => _lastSyncMs;
 
-    // ---------------------------------------------------------------- budget & circuit breaker
-    private static string Today() => DateTime.UtcNow.ToString("yyyy-MM-dd");
+    // ---------------------------------------------------------------- budget (jour du quota = jour qui commence à l'heure de remise à zéro)
+    private static string QuotaDay(int resetMinutes) => DateTime.UtcNow.AddMinutes(-resetMinutes).ToString("yyyy-MM-dd");
 
-    public int BudgetUsed
-    {
-        get
-        {
-            lock (_lock)
-            {
-                return _budgetDay == Today() ? _budgetCount : 0;
-            }
-        }
-    }
-
-    public void IncBudget()
+    public int BudgetUsed(int resetMinutes)
     {
         lock (_lock)
         {
-            if (_budgetDay != Today())
+            return _budgetDay == QuotaDay(resetMinutes) ? _budgetCount : 0;
+        }
+    }
+
+    public void IncBudget(int resetMinutes)
+    {
+        lock (_lock)
+        {
+            var day = QuotaDay(resetMinutes);
+            if (_budgetDay != day)
             {
-                _budgetDay = Today();
+                _budgetDay = day;
                 _budgetCount = 0;
             }
 
@@ -182,15 +222,75 @@ public sealed class RatingsStore
         }
     }
 
-    public long BlockedUntil
+    // ---------------------------------------------------------------- limite atteinte / reprise planifiée
+    public long LastLimitAt => _lastLimitAt;
+
+    public string LastLimitReason => _lastLimitReason;
+
+    /// <summary>Instant (secondes Unix) de la reprise automatique prévue, 0 si aucune limite n'est active.</summary>
+    public long ResumeAt => _resumeAt;
+
+    public void SetLimit(string reason, long resumeAt)
     {
-        get => _blockedUntil;
-        set
+        lock (_lock)
         {
-            lock (_lock)
+            _lastLimitAt = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+            _lastLimitReason = reason;
+            _resumeAt = resumeAt;
+        }
+    }
+
+    public void SetResumeAt(long resumeAt)
+    {
+        lock (_lock)
+        {
+            _resumeAt = resumeAt;
+        }
+    }
+
+    public void ClearLimit()
+    {
+        lock (_lock)
+        {
+            _resumeAt = 0;
+        }
+    }
+
+    // ---------------------------------------------------------------- quota réel du compte MDBList
+    public int AccountLimit => _accountLimit;
+
+    public int AccountUsed => _accountUsed;
+
+    public long AccountChecked => _accountChecked;
+
+    public void SetAccount(int limit, int used)
+    {
+        lock (_lock)
+        {
+            _accountLimit = limit;
+            _accountUsed = used;
+            _accountChecked = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+        }
+    }
+
+    // ---------------------------------------------------------------- historique des passages
+    public void AddRun(RunInfo run)
+    {
+        lock (_lock)
+        {
+            _runs.Add(run);
+            while (_runs.Count > MaxRuns)
             {
-                _blockedUntil = value;
+                _runs.RemoveAt(0);
             }
+        }
+    }
+
+    public List<RunInfo> Runs()
+    {
+        lock (_lock)
+        {
+            return _runs.ToList();
         }
     }
 
@@ -204,20 +304,115 @@ public sealed class RatingsStore
         }
     }
 
-    public StoreCounts Counts()
+    private static bool Has(RatingData d, string key) => d.R != null && d.R.ContainsKey(key);
+
+    /// <summary>Vue détaillée : bibliothèque, traitement, couverture par source, chevauchements.</summary>
+    public StoreCounts Counts(int ttlDays, int emptyRetryDays)
     {
+        var now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+        string[] order = { "imdb", "rt", "aud", "tmdb", "lb" };
         lock (_lock)
         {
-            var withData = _ratings.Values.Where(r => !r.Data.IsEmpty).ToList();
-            return new StoreCounts
+            var c = new StoreCounts
             {
+                Movies = _items.Values.Count(i => i.Type == "movie"),
+                Shows = _items.Values.Count(i => i.Type == "show"),
                 Items = _items.Count,
                 ItemsWithTmdb = _items.Values.Count(i => !string.IsNullOrEmpty(i.Tmdb)),
-                RatingsCached = _ratings.Count,
-                RatingsWithData = withData.Count,
-                WithLetterboxd = withData.Count(r => r.Data.R != null && r.Data.R.ContainsKey("lb")),
-                WithImdb = withData.Count(r => r.Data.R != null && r.Data.R.ContainsKey("imdb"))
+                RatingsCached = _ratings.Count
             };
+            var overlap = new int[5][];
+            for (var i = 0; i < 5; i++)
+            {
+                overlap[i] = new int[5];
+            }
+
+            var seen = new HashSet<string>();
+            foreach (var it in _items.Values)
+            {
+                if (string.IsNullOrEmpty(it.Tmdb) || !seen.Add(it.Type + "_" + it.Tmdb))
+                {
+                    continue;
+                }
+
+                c.UniqueKeys++;
+                if (!_ratings.TryGetValue(it.Type + "_" + it.Tmdb, out var rec))
+                {
+                    c.Missing++;
+                    continue;
+                }
+
+                c.Processed++;
+                var d = rec.Data;
+                var ttl = (d.IsEmpty ? emptyRetryDays : ttlDays) * 86400L;
+                if (now - rec.Fetched > ttl)
+                {
+                    c.Stale++;
+                }
+
+                if (d.IsEmpty)
+                {
+                    c.Empty++;
+                    continue;
+                }
+
+                c.WithData++;
+                var has = order.Select(k => Has(d, k)).ToArray();
+                for (var i = 0; i < 5; i++)
+                {
+                    if (!has[i])
+                    {
+                        continue;
+                    }
+
+                    for (var j = 0; j < 5; j++)
+                    {
+                        if (has[j])
+                        {
+                            overlap[i][j]++;
+                        }
+                    }
+                }
+
+                if (has.All(x => x))
+                {
+                    c.AllFive++;
+                }
+
+                if (d.Age != null)
+                {
+                    c.WithAge++;
+                }
+
+                if (d.C != null && d.C.Count > 0)
+                {
+                    c.WithCountries++;
+                }
+
+                if (d.L != null && d.L.Count > 0)
+                {
+                    c.WithLanguages++;
+                }
+
+                if (!string.IsNullOrEmpty(d.RtUrl))
+                {
+                    c.WithRtUrl++;
+                }
+
+                if (d.Cert == 1)
+                {
+                    c.Certified++;
+                }
+
+                if (d.Ver == 1)
+                {
+                    c.Verified++;
+                }
+            }
+
+            c.Overlap = overlap;
+            c.PerSource = Enumerable.Range(0, 5).Select(i => overlap[i][i]).ToArray();
+            return c;
         }
     }
 

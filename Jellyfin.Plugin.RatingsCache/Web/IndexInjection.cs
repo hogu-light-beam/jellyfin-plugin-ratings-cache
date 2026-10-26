@@ -16,14 +16,28 @@ namespace Jellyfin.Plugin.RatingsCache.Web;
 public sealed class InjectionState
 {
     private long _count;
+    private long _ticks;
+    private long _maxTicks;
 
     public long Count => Interlocked.Read(ref _count);
 
     public DateTimeOffset? Last { get; private set; }
 
-    public void Hit()
+    /// <summary>Durée moyenne de l'ajout du script (millisecondes), hors lecture du fichier par Jellyfin.</summary>
+    public double AvgMs => _count == 0 ? 0 : TimeSpan.FromTicks(Interlocked.Read(ref _ticks) / Math.Max(1, _count)).TotalMilliseconds;
+
+    public double MaxMs => TimeSpan.FromTicks(Interlocked.Read(ref _maxTicks)).TotalMilliseconds;
+
+    public void Hit(long elapsedTimestamps)
     {
+        var ticks = (long)(elapsedTimestamps * (double)TimeSpan.TicksPerSecond / System.Diagnostics.Stopwatch.Frequency);
         Interlocked.Increment(ref _count);
+        Interlocked.Add(ref _ticks, ticks);
+        long seen;
+        while (ticks > (seen = Interlocked.Read(ref _maxTicks)) && Interlocked.CompareExchange(ref _maxTicks, ticks, seen) != seen)
+        {
+        }
+
         Last = DateTimeOffset.UtcNow;
     }
 }
@@ -117,18 +131,25 @@ public sealed class IndexInjectionMiddleware
             return;
         }
 
+        var started = System.Diagnostics.Stopwatch.GetTimestamp();
         var html = Encoding.UTF8.GetString(buffer.ToArray());
+        var injected = false;
         if (!html.Contains(Marker, StringComparison.Ordinal))
         {
             var version = Plugin.Instance?.Version?.ToString() ?? "0";
             var tag = "<script src=\"" + WebUtility.HtmlEncode(prefix) + "/" + Marker + "?v=" + WebUtility.UrlEncode(version) + "\"></script>";
             var idx = html.LastIndexOf("</body>", StringComparison.OrdinalIgnoreCase);
             html = idx >= 0 ? html.Insert(idx, tag + "\n") : html + tag;
-            _state.Hit();
+            injected = true;
         }
 
         var bytes = Encoding.UTF8.GetBytes(html);
         context.Response.ContentLength = bytes.Length;
+        if (injected)
+        {
+            _state.Hit(System.Diagnostics.Stopwatch.GetTimestamp() - started);
+        }
+
         await original.WriteAsync(bytes, context.RequestAborted).ConfigureAwait(false);
     }
 }

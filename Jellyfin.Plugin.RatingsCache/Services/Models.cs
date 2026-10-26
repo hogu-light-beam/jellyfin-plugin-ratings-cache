@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
@@ -97,17 +98,110 @@ public sealed class PendingItem
     public string? Imdb { get; set; }
 }
 
+/// <summary>Résumé d'un passage du plugin (affiché dans l'historique).</summary>
+public sealed class RunInfo
+{
+    /// <summary>Début du passage (secondes Unix).</summary>
+    public long At { get; set; }
+
+    public long Ms { get; set; }
+
+    public int Fetched { get; set; }
+
+    public int Empty { get; set; }
+
+    public int Errors { get; set; }
+
+    /// <summary>Titres restant à traiter à la fin du passage.</summary>
+    public int Remaining { get; set; }
+
+    /// <summary>done | budget | account | 429 | time | error | key | nokey | disabled | nothing</summary>
+    public string Stop { get; set; } = "done";
+}
+
+/// <summary>Critique (TMDb ou Trakt). Noms courts : ceux lus par le client JavaScript.</summary>
+public sealed class Review
+{
+    [JsonPropertyName("s")]
+    public string S { get; set; } = string.Empty;
+
+    [JsonPropertyName("a")]
+    public string A { get; set; } = string.Empty;
+
+    [JsonPropertyName("r")]
+    public double? R { get; set; }
+
+    [JsonPropertyName("d")]
+    public string? D { get; set; }
+
+    [JsonPropertyName("t")]
+    public string T { get; set; } = string.Empty;
+
+    [JsonPropertyName("l")]
+    public int L { get; set; }
+
+    [JsonPropertyName("u")]
+    public string? U { get; set; }
+
+    [JsonPropertyName("sp")]
+    public bool? Sp { get; set; }
+}
+
+public sealed class ReviewRec
+{
+    public List<Review> Items { get; set; } = new();
+
+    public long Fetched { get; set; }
+
+    public bool Failed { get; set; }
+}
+
 public sealed class StoreCounts
 {
+    public int Movies { get; set; }
+
+    public int Shows { get; set; }
+
     public int Items { get; set; }
 
     public int ItemsWithTmdb { get; set; }
 
+    /// <summary>Titres distincts (deux éditions d'un même film partagent une seule note).</summary>
+    public int UniqueKeys { get; set; }
+
+    public int Processed { get; set; }
+
+    public int WithData { get; set; }
+
+    public int Empty { get; set; }
+
+    public int Missing { get; set; }
+
+    public int Stale { get; set; }
+
+    /// <summary>Notes en cache au total, y compris celles de titres retirés de la bibliothèque.</summary>
     public int RatingsCached { get; set; }
 
-    public int RatingsWithData { get; set; }
+    public int WithAge { get; set; }
 
-    public int WithLetterboxd { get; set; }
+    public int WithCountries { get; set; }
 
-    public int WithImdb { get; set; }
+    public int WithLanguages { get; set; }
+
+    public int WithRtUrl { get; set; }
+
+    public int Certified { get; set; }
+
+    public int Verified { get; set; }
+
+    /// <summary>Titres ayant les cinq notes.</summary>
+    public int AllFive { get; set; }
+
+    /// <summary>Compteurs par source, dans l'ordre imdb, rt, aud, tmdb, lb.</summary>
+    public int[] PerSource { get; set; } = new int[5];
+
+    /// <summary>Matrice 5x5 : titres ayant à la fois la source i et la source j (la diagonale = le total de la source).</summary>
+    public int[][] Overlap { get; set; } = Array.Empty<int[]>();
+
+    public int Remaining => Missing + Stale;
 }
