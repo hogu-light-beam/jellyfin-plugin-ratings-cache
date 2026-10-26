@@ -7,12 +7,10 @@ par le serveur (MDBList), puis servies en un seul fichier compressé que le navi
 Aucun fichier à modifier : le plugin ajoute lui-même son script à la page d'accueil du client web
 et propose tous ses réglages dans le tableau de bord (menu « Ratings Cache »).
 
-<<<<<<< HEAD
+
 Lien d'extension pour Jellyfin : https://raw.githubusercontent.com/hogu-light-beam/jellyfin-plugin-ratings-cache/main/manifest.json
 Extensions > Nouveau Dépôt
 
-=======
->>>>>>> 43647ad96888c02ec9933005efb563def685bb28
 ## Fonctions
 
 **Tableau de bord**
