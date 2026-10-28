@@ -317,6 +317,15 @@
     }
     return { id: norm(id), root: root };
   }
+  // Seules les vraies cartes de médias reçoivent une note : pas l'éditeur d'images, ni les fenêtres de dialogue
+  var MEDIA_TYPES = { Movie: 1, Series: 1, Episode: 1, Season: 1 };
+  function isMediaCard(root) {
+    if (!root) return false;
+    if (root.classList.contains('imageEditorCard') || root.hasAttribute('data-imagetype') || root.hasAttribute('data-numimages')) return false;
+    if (root.closest('.dialog, .formDialog, .dialogContainer, .actionSheet, .imageEditor, .metadataEditor, .editPageInnerContent')) return false;
+    var type = root.getAttribute('data-type');
+    return !type || MEDIA_TYPES[type] === 1;
+  }
   function cardRecord(id, root) {
     var rec = DATA[id];
     if (rec) return (rec.t === 'movie' ? CFG.cards.movies : CFG.cards.series) ? rec : null;
@@ -361,6 +370,7 @@
       if (!c.enabled) { el.dataset.jrcCard = key; continue; }
       var ci = cardId(el);
       if (!ci.id) continue;
+      if (!isMediaCard(ci.root)) { el.dataset.jrcCard = key; continue; }
       var rec = cardRecord(ci.id, ci.root);
       if (rec === undefined) continue;                         // infos d'épisode en cours de chargement
       el.dataset.jrcCard = key;
